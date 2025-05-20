@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
-	"vasapolrittideah/money-tracker-api/shared/logger"
-	"vasapolrittideah/money-tracker-api/shared/utils/pathutil"
+	"github.com/vasapolrittideah/money-tracker-api/shared/logger"
+	"github.com/vasapolrittideah/money-tracker-api/shared/utils/pathutil"
 )
 
 type JwtConfig struct {

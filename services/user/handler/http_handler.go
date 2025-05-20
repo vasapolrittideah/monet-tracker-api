@@ -3,10 +3,10 @@ package handler
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/vasapolrittideah/money-tracker-api/services/user/service"
+	"github.com/vasapolrittideah/money-tracker-api/shared/config"
+	"github.com/vasapolrittideah/money-tracker-api/shared/domain/response"
 	"google.golang.org/grpc/codes"
-	"vasapolrittideah/money-tracker-api/services/user/service"
-	"vasapolrittideah/money-tracker-api/shared/config"
-	"vasapolrittideah/money-tracker-api/shared/domain/response"
 )
 
 type UserHttpHandler interface {

@@ -1,0 +1,15 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "repository",
+    srcs = ["repository.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/user/repository",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//shared/domain/apperror",
+        "//shared/domain/entity",
+        "//shared/utils/errorutil",
+        "@com_github_google_uuid//:uuid",
+        "@io_gorm_gorm//:gorm",
+    ],
+)

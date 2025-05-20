@@ -2,10 +2,10 @@ package repository
 
 import (
 	"github.com/google/uuid"
+	"github.com/vasapolrittideah/money-tracker-api/shared/domain/apperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/domain/entity"
+	"github.com/vasapolrittideah/money-tracker-api/shared/utils/errorutil"
 	"gorm.io/gorm"
-	"vasapolrittideah/money-tracker-api/shared/domain/apperror"
-	"vasapolrittideah/money-tracker-api/shared/domain/entity"
-	"vasapolrittideah/money-tracker-api/shared/utils/errorutil"
 )
 
 type UserRepository interface {

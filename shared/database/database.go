@@ -3,9 +3,9 @@ package database
 import (
 	"fmt"
 
+	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"vasapolrittideah/money-tracker-api/shared/config"
 )
 
 func Connect(dbConfig *config.DatabaseConfig) (*gorm.DB, error) {

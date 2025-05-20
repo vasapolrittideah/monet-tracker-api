@@ -1,0 +1,22 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "user_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/user",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//services/user/server",
+        "//shared/config",
+        "//shared/database",
+        "//shared/domain/entity",
+        "//shared/logger",
+        "@com_github_charmbracelet_log//:log",
+    ],
+)
+
+go_binary(
+    name = "user",
+    embed = [":user_lib"],
+    visibility = ["//visibility:public"],
+)

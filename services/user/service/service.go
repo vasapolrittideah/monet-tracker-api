@@ -2,10 +2,10 @@ package service
 
 import (
 	"github.com/google/uuid"
-	"vasapolrittideah/money-tracker-api/services/user/repository"
-	"vasapolrittideah/money-tracker-api/shared/config"
-	"vasapolrittideah/money-tracker-api/shared/domain/apperror"
-	"vasapolrittideah/money-tracker-api/shared/domain/entity"
+	"github.com/vasapolrittideah/money-tracker-api/services/user/repository"
+	"github.com/vasapolrittideah/money-tracker-api/shared/config"
+	"github.com/vasapolrittideah/money-tracker-api/shared/domain/apperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/domain/entity"
 )
 
 type UserService interface {

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/vasapolrittideah/money-tracker-api/shared/domain/apperror"
 	"google.golang.org/grpc/codes"
 	"gorm.io/gorm"
-	"vasapolrittideah/money-tracker-api/shared/domain/apperror"
 )
 
 func HandleUnknownDatabaseError(err error) *apperror.Error {
