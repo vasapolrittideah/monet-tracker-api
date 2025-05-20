@@ -1,0 +1,35 @@
+version: "2"
+
+linters:
+  default: standard
+  enable:
+    - errcheck
+    - funlen
+    - gocritic
+    - goconst
+    - lll
+    - unused
+    - dupl
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+    - golines
+  settings:
+    golines:
+      max-len: 120
+
+run:
+  timeout: 10m
+  relative-path-mode: gomod
+  allow-parallel-runners: true
+  allow-serial-runners: true
+  concurrency: 4
