@@ -1,10 +1,10 @@
 package config
 
 import (
-	"log"
 	"time"
 
 	"github.com/spf13/viper"
+	"vasapolrittideah/money-tracker-api/shared/logger"
 	"vasapolrittideah/money-tracker-api/shared/utils/pathutil"
 )
 
@@ -43,7 +43,7 @@ type Config struct {
 func Load() (config *Config, err error) {
 	rootDir, err := pathutil.GetProjectRoot()
 	if err != nil || rootDir == "" {
-		log.Fatal(err)
+		logger.Fatal("CORE", "failed to get project root: %v", err)
 	}
 
 	viper.SetConfigType("env")
@@ -51,11 +51,11 @@ func Load() (config *Config, err error) {
 	viper.AddConfigPath(rootDir)
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Unable to read in config: %v", err)
+		logger.Fatal("CORE", "unable to read config file: %v", err)
 	}
 
 	if err := viper.Unmarshal(&config); err != nil {
-		log.Fatalf("Unable to decode into struct: %v", err)
+		logger.Fatal("CORE", "unable to decode into struct: %v", err)
 	}
 
 	return

@@ -25,5 +25,5 @@ func GetProjectRoot() (string, error) {
 		currentDir = parent
 	}
 
-	return "", fmt.Errorf("failed to get project root")
+	return "", fmt.Errorf("project root not found")
 }
