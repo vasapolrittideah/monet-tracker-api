@@ -5,9 +5,5 @@ go_library(
     srcs = ["config.go"],
     importpath = "github.com/vasapolrittideah/money-tracker-api/shared/config",
     visibility = ["//visibility:public"],
-    deps = [
-        "//shared/logger",
-        "//shared/utils/pathutil",
-        "@com_github_spf13_viper//:viper",
-    ],
+    deps = ["@com_github_caarlos0_env_v11//:env"],
 )
