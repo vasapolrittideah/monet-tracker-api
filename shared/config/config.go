@@ -5,7 +5,6 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/vasapolrittideah/money-tracker-api/shared/logger"
-	"github.com/vasapolrittideah/money-tracker-api/shared/utils/pathutil"
 )
 
 type JwtConfig struct {
@@ -37,18 +36,7 @@ type Config struct {
 }
 
 func Load() (config *Config, err error) {
-	rootDir, err := pathutil.GetProjectRoot()
-	if err != nil || rootDir == "" {
-		logger.Fatal("CORE", "failed to get project root: %v", err)
-	}
-
-	viper.SetConfigType("env")
-	viper.SetConfigName(".env")
-	viper.AddConfigPath(rootDir)
-
-	if err := viper.ReadInConfig(); err != nil {
-		logger.Fatal("CORE", "unable to read config file: %v", err)
-	}
+	viper.AutomaticEnv()
 
 	if err := viper.Unmarshal(&config); err != nil {
 		logger.Fatal("CORE", "unable to decode into struct: %v", err)

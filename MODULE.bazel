@@ -27,4 +27,5 @@ use_repo(
     "io_gorm_driver_postgres",
     "io_gorm_gorm",
     "org_golang_google_grpc",
+    "org_golang_google_protobuf",
 )
