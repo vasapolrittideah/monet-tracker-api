@@ -9,28 +9,24 @@ import (
 )
 
 type JwtConfig struct {
-	AccessTokenPrivateKey  string        `mapstructure:"ACCESS_TOKEN_PRIVATE_KEY"`
-	AccessTokenPublicKey   string        `mapstructure:"ACCESS_TOKEN_PUBLIC_KEY"`
-	AccessTokenExpiresIn   time.Duration `mapstructure:"ACCESS_TOKEN_EXPIRES_IN"`
-	AccessTokenMaxAge      string        `mapstructure:"ACCESS_TOKEN_MAX_AGE"`
-	RefreshTokenPrivateKey string        `mapstructure:"REFRESH_TOKEN_PRIVATE_KEY"`
-	RefreshTokenPublicKey  string        `mapstructure:"REFRESH_TOKEN_PUBLIC_KEY"`
-	RefreshTokenExpiresIn  time.Duration `mapstructure:"REFRESH_TOKEN_EXPIRES_IN"`
-	RefreshTokenMaxAge     string        `mapstructure:"REFRESH_TOKEN_MAX_AGE"`
+	AccessTokenSecretKey  string        `mapstructure:"ACCESS_TOKEN_SECRET_KEY"`
+	AccessTokenExpiresIn  time.Duration `mapstructure:"ACCESS_TOKEN_EXPIRES_IN"`
+	RefreshTokenSecretKey string        `mapstructure:"REFRESH_TOKEN_SECRET_KEY"`
+	RefreshTokenExpiresIn time.Duration `mapstructure:"REFRESH_TOKEN_EXPIRES_IN"`
 }
 
 type DatabaseConfig struct {
-	Host     string `mapstructure:"DB_HOST"`
-	Port     string `mapstructure:"DB_PORT"`
-	User     string `mapstructure:"DB_USER"`
-	Password string `mapstructure:"DB_PASSWORD"`
-	Name     string `mapstructure:"DB_NAME"`
+	Host     string `mapstructure:"POSTGRES_HOST"`
+	Port     string `mapstructure:"POSTGRES_PORT"`
+	User     string `mapstructure:"POSTGRES_USER"`
+	Password string `mapstructure:"POSTGRES_PASSWORD"`
+	Name     string `mapstructure:"POSTGRES_DB"`
 }
 
 type ServerConfig struct {
-	AuthHttpPort string `mapstructure:"AUTH_HTTP_PORT"`
-	UserHttpPort string `mapstructure:"USER_HTTP_PORT"`
-	UserGrpcPort string `mapstructure:"USER_GRPC_PORT"`
+	AuthHttpPort string `mapstructure:"AUTH_SERVICE_HTTP_PORT"`
+	UserHttpPort string `mapstructure:"USER_SERVICE_HTTP_PORT"`
+	UserGrpcPort string `mapstructure:"USER_SERVICE_GRPC_PORT"`
 }
 
 type Config struct {
