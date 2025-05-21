@@ -6,6 +6,7 @@ go_library(
     importpath = "github.com/vasapolrittideah/money-tracker-api/shared/database",
     visibility = ["//visibility:public"],
     deps = [
+        "//shared/config",
         "@io_gorm_driver_postgres//:postgres",
         "@io_gorm_gorm//:gorm",
     ],

@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+option go_package = "github.com/vasapolrittideah/money-tracker-api/protogen/userpb";
+
+import "google/protobuf/timestamp.proto";
+
+service UserService {
+  rpc GetAllUsers (GetAllUsersRequest) returns (GetAllUsersResponse) {}
+  rpc GetUserById (GetUserByIdRequest) returns (GetUserByIdResponse) {}
+  rpc GetUserByEmail (GetUserByEmailRequest) returns (GetUserByEmailResponse) {}
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {}
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {}
+}
+
+message User {
+  string id = 1;
+  string full_name = 2;
+  string email = 3;
+  bool verified = 4;
+  google.protobuf.Timestamp createdAt = 5;
+  google.protobuf.Timestamp updatedAt = 6;
+  google.protobuf.Timestamp last_sign_in_at = 7;
+  string hashed_password = 8;
+  string hashed_refresh_token = 9;
+
+  // reserved 10 to avoid conflict in the future
+  reserved 10;
+}
+
+// Requests and Responses
+
+message GetAllUsersRequest {}
+
+message GetAllUsersResponse {
+  repeated User users = 2;
+}
+
+message GetUserByIdRequest {
+  string user_id = 1;
+}
+
+message GetUserByIdResponse {
+  User user = 2;
+}
+
+message GetUserByEmailRequest {
+  string email = 1;
+}
+
+message GetUserByEmailResponse {
+  User user = 2;
+}
+
+message CreateUserRequest {
+  string full_name = 1;
+  string email = 2;
+  string hashed_password = 3;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+message UpdateUserRequest {
+  User user = 1;
+}
+
+message UpdateUserResponse {
+  User user = 2;
+}
+
+message DeleteUserRequest {
+  string user_id = 1;
+}
+
+message DeleteUserResponse {
+  User user = 1;
+}

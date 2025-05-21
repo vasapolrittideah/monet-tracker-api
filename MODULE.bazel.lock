@@ -191,7 +191,7 @@
     "@@apple_support+//crosstool:setup.bzl%apple_cc_configure_extension": {
       "general": {
         "bzlTransitiveDigest": "okb7JAyJ9zeL+SDmtbWT0XBLq8WRoLJ0zWAG783RLVI=",
-        "usagesDigest": "xv9z2c7OWE3Yp+Azbwv1ImqlF3yAZhfTG5FR1K+/isk=",
+        "usagesDigest": "EJfdUgbJdIRboG70S9dz8HhGVkL2/s3qFQ9xht8y2Rs=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -217,22 +217,6 @@
             "rules_cc+"
           ]
         ]
-      }
-    },
-    "@@platforms//host:extension.bzl%host_platform": {
-      "general": {
-        "bzlTransitiveDigest": "xelQcPZH8+tmuOHVjL9vDxMnnQNMlwj0SlvgoqBkm4U=",
-        "usagesDigest": "SeQiIN/f8/Qt9vYQk7qcXp4I4wJeEC0RnQDiaaJ4tb8=",
-        "recordedFileInputs": {},
-        "recordedDirentsInputs": {},
-        "envVariables": {},
-        "generatedRepoSpecs": {
-          "host_platform": {
-            "repoRuleId": "@@platforms//host:extension.bzl%host_platform_repo",
-            "attributes": {}
-          }
-        },
-        "recordedRepoMappingEntries": []
       }
     },
     "@@rules_kotlin+//src/main/starlark/core/repositories:bzlmod_setup.bzl%rules_kotlin_extensions": {
