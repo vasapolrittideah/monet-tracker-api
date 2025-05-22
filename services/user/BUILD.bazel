@@ -1,4 +1,7 @@
+load("@aspect_bazel_lib//lib:transitions.bzl", "platform_transition_filegroup")
 load("@rules_go//go:def.bzl", "go_binary", "go_library")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
 
 go_library(
     name = "user_lib",
@@ -19,4 +22,31 @@ go_binary(
     name = "user",
     embed = [":user_lib"],
     visibility = ["//visibility:public"],
+)
+
+pkg_tar(
+    name = "app",
+    srcs = [":user"],
+)
+
+oci_image(
+    name = "image",
+    base = "@distroless_base",
+    entrypoint = ["/user"],
+    tars = [":app"],
+)
+
+platform_transition_filegroup(
+    name = "transitioned_image",
+    srcs = [":image"],
+    target_platform = select({
+        "@platforms//cpu:arm64": "@rules_go//go/toolchain:linux_arm64",
+        "@platforms//cpu:x86_64": "@rules_go//go/toolchain:linux_amd64",
+    }),
+)
+
+oci_load(
+    name = "load",
+    image = ":transitioned_image",
+    repo_tags = ["vasapolrittideah/money-tracker-api-user:latest"],
 )

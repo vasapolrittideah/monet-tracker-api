@@ -18,3 +18,30 @@ go_binary(
     embed = [":auth_lib"],
     visibility = ["//visibility:public"],
 )
+
+pkg_tar(
+    name = "app",
+    srcs = [":auth"],
+)
+
+oci_image(
+    name = "image",
+    base = "@distroless_base",
+    entrypoint = ["/auth"],
+    tars = [":app"],
+)
+
+platform_transition_filegroup(
+    name = "transitioned_image",
+    srcs = [":image"],
+    target_platform = select({
+        "@platforms//cpu:arm64": "@rules_go//go/toolchain:linux_arm64",
+        "@platforms//cpu:x86_64": "@rules_go//go/toolchain:linux_amd64",
+    }),
+)
+
+oci_load(
+    name = "load",
+    image = ":transitioned_image",
+    repo_tags = ["vasapolrittideah/money-tracker-api-auth:latest"],
+)
