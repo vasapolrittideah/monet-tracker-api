@@ -1,0 +1,17 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "handler",
+    srcs = ["http_handler.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/auth/handler",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//services/auth/model",
+        "//services/auth/service",
+        "//shared/config",
+        "//shared/domain/response",
+        "//shared/middleware",
+        "@com_github_gofiber_fiber_v2//:fiber",
+        "@org_golang_google_grpc//codes",
+    ],
+)
