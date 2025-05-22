@@ -2,23 +2,21 @@ load("@rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "server",
-    srcs = [
-        "grpc_handler.go",
-        "http_server.go",
-    ],
-    importpath = "github.com/vasapolrittideah/money-tracker-api/services/user/server",
+    srcs = ["http_server.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/auth/server",
     visibility = ["//visibility:public"],
     deps = [
-        "//services/user/handler",
-        "//services/user/repository",
-        "//services/user/service",
+        "//generated/protobuf/user",
+        "//services/auth/handler",
+        "//services/auth/service",
         "//shared/config",
         "//shared/logger",
+        "//shared/middleware",
         "@com_github_gofiber_fiber_v2//:fiber",
         "@com_github_gofiber_fiber_v2//middleware/cors",
         "@com_github_gofiber_fiber_v2//middleware/logger",
         "@com_github_gofiber_fiber_v2//middleware/recover",
-        "@io_gorm_gorm//:gorm",
         "@org_golang_google_grpc//:grpc",
+        "@org_golang_google_grpc//credentials/insecure",
     ],
 )

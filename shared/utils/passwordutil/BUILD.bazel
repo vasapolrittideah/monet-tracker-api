@@ -1,0 +1,13 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "passwordutil",
+    srcs = ["passwordutil.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/shared/utils/passwordutil",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//shared/domain/apperror",
+        "@com_github_matthewhartstonge_argon2//:argon2",
+        "@org_golang_google_grpc//codes",
+    ],
+)
