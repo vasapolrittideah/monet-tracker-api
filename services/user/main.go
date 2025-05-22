@@ -35,5 +35,8 @@ func main() {
 	}
 
 	httpServer := server.NewUserHttpServer(cfg, db)
-	httpServer.Run()
+	go httpServer.Run()
+
+	grpcServer := server.NewUserGrpcServer(cfg, db)
+	grpcServer.Run()
 }
