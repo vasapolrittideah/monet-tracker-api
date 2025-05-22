@@ -17,3 +17,8 @@ type User struct {
 	HashedPassword     string    `json:"-"               gorm:"not null;type:varchar(255)"`
 	HashedRefreshToken string    `json:"-"`
 }
+
+type Jwt struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
