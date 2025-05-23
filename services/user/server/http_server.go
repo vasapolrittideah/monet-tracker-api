@@ -63,12 +63,12 @@ func (s *userHttpServer) Run() {
 	userHttpHandler.RegisterRouter()
 
 	go func() {
-		if err := app.Listen(":" + s.cfg.Server.UserHttpPort); err != nil {
+		if err := app.Listen(":" + s.cfg.Server.UserServiceHttpPort); err != nil {
 			logger.Fatal("USER", "failed to serve http server: %v", err)
 		}
 	}()
 
-	logger.Info("USER", "🚀 http server started on port %v", s.cfg.Server.UserHttpPort)
+	logger.Info("USER", "🚀 http server started on port %v", s.cfg.Server.UserServiceHttpPort)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(

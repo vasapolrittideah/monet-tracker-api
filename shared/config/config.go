@@ -22,9 +22,10 @@ type DatabaseConfig struct {
 }
 
 type ServerConfig struct {
-	AuthHttpPort string `env:"AUTH_SERVICE_HTTP_PORT"`
-	UserHttpPort string `env:"USER_SERVICE_HTTP_PORT"`
-	UserGrpcPort string `env:"USER_SERVICE_GRPC_PORT"`
+	UserServiceHttpPort           string `env:"USER_SERVICE_HTTP_PORT"`
+	UserServiceGrpcPort           string `env:"USER_SERVICE_GRPC_PORT"`
+	UserServiceGrpcConnectionHost string `env:"USER_SERVICE_GRPC_CONNECTION_HOST"`
+	AuthServiceHttpPort           string `env:"AUTH_SERVICE_HTTP_PORT"`
 }
 
 type Config struct {

@@ -26,7 +26,7 @@ func NewUserGrpcServer(cfg *config.Config, db *gorm.DB) *userGrpcServer {
 }
 
 func (s *userGrpcServer) Run() {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", s.cfg.Server.UserGrpcPort))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", s.cfg.Server.UserServiceGrpcPort))
 	if err != nil {
 		logger.Fatal("USER", "failed to listen: %v", err)
 	}
@@ -42,7 +42,7 @@ func (s *userGrpcServer) Run() {
 		}
 	}()
 
-	logger.Info("USER", "🚀 grpc server started on port %v", s.cfg.Server.UserGrpcPort)
+	logger.Info("USER", "🚀 grpc server started on port %v", s.cfg.Server.UserServiceGrpcPort)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(

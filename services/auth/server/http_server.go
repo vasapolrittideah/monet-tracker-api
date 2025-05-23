@@ -76,12 +76,12 @@ func (s *httpServer) Run() {
 	authHandler.RegisterRouter()
 
 	go func() {
-		if err := app.Listen(":" + s.cfg.Server.AuthHttpPort); err != nil {
+		if err := app.Listen(":" + s.cfg.Server.AuthServiceHttpPort); err != nil {
 			logger.Fatal("AUTH", "failed to listen and serve application: %v", err)
 		}
 	}()
 
-	logger.Info("AUTH", "🚀 http server started on port %v", s.cfg.Server.AuthHttpPort)
+	logger.Info("AUTH", "🚀 http server started on port %v", s.cfg.Server.AuthServiceHttpPort)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(
@@ -95,7 +95,7 @@ func (s *httpServer) Run() {
 
 func newUserClient(cfg *config.Config) *grpc.ClientConn {
 	conn, err := grpc.NewClient(
-		fmt.Sprintf(":%v", cfg.Server.UserGrpcPort),
+		fmt.Sprintf("%v:%v", cfg.Server.UserServiceGrpcConnectionHost, cfg.Server.UserServiceGrpcPort),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
