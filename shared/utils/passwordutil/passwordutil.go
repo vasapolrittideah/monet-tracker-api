@@ -19,5 +19,5 @@ func HashPassword(password string) (string, *apperror.Error) {
 }
 
 func VerifyPassword(encoded string, password string) (bool, error) {
-	return argon2.VerifyEncoded([]byte(encoded), []byte(password))
+	return argon2.VerifyEncoded([]byte(password), []byte(encoded))
 }

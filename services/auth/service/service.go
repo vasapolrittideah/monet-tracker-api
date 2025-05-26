@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	userpb "github.com/vasapolrittideah/money-tracker-api/generated/protobuf/user"
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/model"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
@@ -78,7 +79,8 @@ func (s *authService) SignIn(req *model.SignInRequest) (*model.SignInResponse, *
 		return nil, apperror.New(st.Code(), st.Err())
 	}
 
-	user := mapper.MapUserProtoToEntity(res.User)
+	user := res.User
+	userIdUuid := uuid.MustParse(user.Id)
 
 	if ok, err := passwordutil.VerifyPassword(user.HashedPassword, req.Password); err != nil || !ok {
 		return nil, apperror.New(codes.Unauthenticated, fmt.Errorf("password is incorrect"))
@@ -87,7 +89,7 @@ func (s *authService) SignIn(req *model.SignInRequest) (*model.SignInResponse, *
 	accessToken, err := jwtutil.GenerateJwt(
 		s.cfg.Jwt.AccessTokenExpiresIn,
 		s.cfg.Jwt.AccessTokenSecretKey,
-		user.Id,
+		userIdUuid,
 	)
 	if err != nil {
 		return nil, apperror.New(codes.Internal, fmt.Errorf("failed to generate access token: %v", err.Error()))
@@ -96,7 +98,7 @@ func (s *authService) SignIn(req *model.SignInRequest) (*model.SignInResponse, *
 	refreshToken, err := jwtutil.GenerateJwt(
 		s.cfg.Jwt.RefreshTokenExpiresIn,
 		s.cfg.Jwt.RefreshTokenSecretKey,
-		user.Id,
+		userIdUuid,
 	)
 	if err != nil {
 		return nil, apperror.New(codes.Internal, fmt.Errorf("failed to generate refresh token: %v", err.Error()))
@@ -110,10 +112,9 @@ func (s *authService) SignIn(req *model.SignInRequest) (*model.SignInResponse, *
 		)
 	}
 
+	user.HashedRefreshToken = hashedRefreshToken
 	if _, err = s.userClient.UpdateUser(ctx, &userpb.UpdateUserRequest{
-		User: &userpb.User{
-			HashedRefreshToken: hashedRefreshToken,
-		},
+		User: user,
 	}); err != nil {
 		st := status.Convert(err)
 		return nil, apperror.New(st.Code(), st.Err())
