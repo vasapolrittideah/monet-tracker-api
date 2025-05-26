@@ -110,10 +110,14 @@ func (h *userGrpcHandler) UpdateUser(
 	c context.Context,
 	req *userpb.UpdateUserRequest,
 ) (*userpb.UpdateUserResponse, error) {
-	user, err := h.service.UpdateUser(&entity.User{
-		FullName: req.User.FullName,
-		Email:    req.User.Email,
-	})
+	newUserData := &entity.User{
+		FullName:           req.User.FullName,
+		Email:              req.User.Email,
+		HashedRefreshToken: req.User.HashedRefreshToken,
+	}
+	userIdUUid := uuid.MustParse(req.User.Id)
+
+	user, err := h.service.UpdateUser(userIdUUid, newUserData)
 	if err != nil {
 		return nil, status.Errorf(err.Code, "%s", err.Error())
 	}

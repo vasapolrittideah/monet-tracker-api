@@ -13,7 +13,7 @@ type UserService interface {
 	GetUserById(id uuid.UUID) (*entity.User, *apperror.Error)
 	GetUserByEmail(email string) (*entity.User, *apperror.Error)
 	CreateUser(user *entity.User) (*entity.User, *apperror.Error)
-	UpdateUser(user *entity.User) (*entity.User, *apperror.Error)
+	UpdateUser(id uuid.UUID, newUserData *entity.User) (*entity.User, *apperror.Error)
 	DeleteUser(id uuid.UUID) (*entity.User, *apperror.Error)
 }
 
@@ -42,8 +42,8 @@ func (s *userService) CreateUser(user *entity.User) (*entity.User, *apperror.Err
 	return s.userRepo.CreateUser(user)
 }
 
-func (s *userService) UpdateUser(user *entity.User) (*entity.User, *apperror.Error) {
-	return s.userRepo.UpdateUser(user)
+func (s *userService) UpdateUser(id uuid.UUID, newUserData *entity.User) (*entity.User, *apperror.Error) {
+	return s.userRepo.UpdateUser(id, newUserData)
 }
 
 func (s *userService) DeleteUser(id uuid.UUID) (*entity.User, *apperror.Error) {

@@ -13,7 +13,7 @@ type UserRepository interface {
 	GetUserById(id uuid.UUID) (*entity.User, *apperror.Error)
 	GetUserByEmail(email string) (*entity.User, *apperror.Error)
 	CreateUser(user *entity.User) (*entity.User, *apperror.Error)
-	UpdateUser(user *entity.User) (*entity.User, *apperror.Error)
+	UpdateUser(id uuid.UUID, newUserData *entity.User) (*entity.User, *apperror.Error)
 	DeleteUser(id uuid.UUID) (*entity.User, *apperror.Error)
 }
 
@@ -60,13 +60,13 @@ func (r *userRepository) CreateUser(user *entity.User) (*entity.User, *apperror.
 	return user, nil
 }
 
-func (r *userRepository) UpdateUser(newUserData *entity.User) (*entity.User, *apperror.Error) {
+func (r *userRepository) UpdateUser(id uuid.UUID, newUserData *entity.User) (*entity.User, *apperror.Error) {
 	var user *entity.User
-	if err := r.db.First(&user, "id = ?", newUserData.Id).Error; err != nil {
+	if err := r.db.First(&user, "id = ?", id).Error; err != nil {
 		return nil, errorutil.HandleRecordNotFoundError(err)
 	}
 
-	if err := r.db.Model(&user).Updates(newUserData.Id).Error; err != nil {
+	if err := r.db.Model(&user).Updates(*newUserData).Error; err != nil {
 		return nil, errorutil.HandleUnknownDatabaseError(err)
 	}
 
