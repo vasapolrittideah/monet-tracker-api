@@ -4,17 +4,17 @@ import (
 	"github.com/google/uuid"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/repository"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain/apperror"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain/entity"
+	"github.com/vasapolrittideah/money-tracker-api/shared/model/apperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
 )
 
 type UserService interface {
-	GetAllUsers() ([]*entity.User, *apperror.Error)
-	GetUserById(id uuid.UUID) (*entity.User, *apperror.Error)
-	GetUserByEmail(email string) (*entity.User, *apperror.Error)
-	CreateUser(user *entity.User) (*entity.User, *apperror.Error)
-	UpdateUser(id uuid.UUID, newUserData *entity.User) (*entity.User, *apperror.Error)
-	DeleteUser(id uuid.UUID) (*entity.User, *apperror.Error)
+	GetAllUsers() ([]*domain.User, *apperror.Error)
+	GetUserById(id uuid.UUID) (*domain.User, *apperror.Error)
+	GetUserByEmail(email string) (*domain.User, *apperror.Error)
+	CreateUser(user *domain.User) (*domain.User, *apperror.Error)
+	UpdateUser(id uuid.UUID, newUserData *domain.User) (*domain.User, *apperror.Error)
+	DeleteUser(id uuid.UUID) (*domain.User, *apperror.Error)
 }
 
 type userService struct {
@@ -26,26 +26,26 @@ func NewUserService(userRepo repository.UserRepository, cfg *config.Config) User
 	return &userService{userRepo, cfg}
 }
 
-func (s *userService) GetAllUsers() ([]*entity.User, *apperror.Error) {
+func (s *userService) GetAllUsers() ([]*domain.User, *apperror.Error) {
 	return s.userRepo.GetAllUsers()
 }
 
-func (s *userService) GetUserById(id uuid.UUID) (*entity.User, *apperror.Error) {
+func (s *userService) GetUserById(id uuid.UUID) (*domain.User, *apperror.Error) {
 	return s.userRepo.GetUserById(id)
 }
 
-func (s *userService) GetUserByEmail(email string) (*entity.User, *apperror.Error) {
+func (s *userService) GetUserByEmail(email string) (*domain.User, *apperror.Error) {
 	return s.userRepo.GetUserByEmail(email)
 }
 
-func (s *userService) CreateUser(user *entity.User) (*entity.User, *apperror.Error) {
+func (s *userService) CreateUser(user *domain.User) (*domain.User, *apperror.Error) {
 	return s.userRepo.CreateUser(user)
 }
 
-func (s *userService) UpdateUser(id uuid.UUID, newUserData *entity.User) (*entity.User, *apperror.Error) {
+func (s *userService) UpdateUser(id uuid.UUID, newUserData *domain.User) (*domain.User, *apperror.Error) {
 	return s.userRepo.UpdateUser(id, newUserData)
 }
 
-func (s *userService) DeleteUser(id uuid.UUID) (*entity.User, *apperror.Error) {
+func (s *userService) DeleteUser(id uuid.UUID) (*domain.User, *apperror.Error) {
 	return s.userRepo.DeleteUser(id)
 }

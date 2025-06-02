@@ -7,8 +7,8 @@ import (
 	userpb "github.com/vasapolrittideah/money-tracker-api/generated/protobuf/user"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/service"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain/entity"
 	"github.com/vasapolrittideah/money-tracker-api/shared/mapper"
+	"github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
 )
@@ -91,7 +91,7 @@ func (h *userGrpcHandler) CreateUser(
 	c context.Context,
 	req *userpb.CreateUserRequest,
 ) (*userpb.CreateUserResponse, error) {
-	user, err := h.service.CreateUser(&entity.User{
+	user, err := h.service.CreateUser(&domain.User{
 		FullName:       req.FullName,
 		Email:          req.Email,
 		HashedPassword: req.HashedPassword,
@@ -110,7 +110,7 @@ func (h *userGrpcHandler) UpdateUser(
 	c context.Context,
 	req *userpb.UpdateUserRequest,
 ) (*userpb.UpdateUserResponse, error) {
-	newUserData := &entity.User{
+	newUserData := &domain.User{
 		FullName:           req.User.FullName,
 		Email:              req.User.Email,
 		HashedRefreshToken: req.User.HashedRefreshToken,

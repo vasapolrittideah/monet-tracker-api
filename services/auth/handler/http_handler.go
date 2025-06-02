@@ -5,8 +5,8 @@ import (
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/model"
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/service"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain/response"
 	"github.com/vasapolrittideah/money-tracker-api/shared/middleware"
+	"github.com/vasapolrittideah/money-tracker-api/shared/model/response"
 	"google.golang.org/grpc/codes"
 )
 

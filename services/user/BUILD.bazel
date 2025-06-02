@@ -12,8 +12,8 @@ go_library(
         "//services/user/server",
         "//shared/config",
         "//shared/database",
-        "//shared/domain/entity",
         "//shared/logger",
+        "//shared/model/domain",
         "@com_github_charmbracelet_log//:log",
     ],
 )

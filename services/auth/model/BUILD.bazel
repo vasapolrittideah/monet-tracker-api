@@ -5,5 +5,5 @@ go_library(
     srcs = ["model.go"],
     importpath = "github.com/vasapolrittideah/money-tracker-api/services/auth/model",
     visibility = ["//visibility:public"],
-    deps = ["//shared/domain/entity"],
+    deps = ["//shared/model/domain"],
 )

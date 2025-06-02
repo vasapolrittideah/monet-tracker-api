@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain/apperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/model/apperror"
 	"google.golang.org/grpc/codes"
 	"gorm.io/gorm"
 )

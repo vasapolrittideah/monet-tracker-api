@@ -1,6 +1,6 @@
 package model
 
-import "github.com/vasapolrittideah/money-tracker-api/shared/domain/entity"
+import "github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
 
 type SignUpRequest struct {
 	FullName string `json:"full_name" validate:"required"`
@@ -9,7 +9,7 @@ type SignUpRequest struct {
 }
 
 type SignUpResponse struct {
-	*entity.User
+	*domain.User
 }
 
 type SignInRequest struct {
@@ -18,5 +18,5 @@ type SignInRequest struct {
 }
 
 type SignInResponse struct {
-	*entity.Jwt
+	*domain.Jwt
 }

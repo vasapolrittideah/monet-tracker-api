@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/matthewhartstonge/argon2"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain/apperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/model/apperror"
 	"google.golang.org/grpc/codes"
 )
 

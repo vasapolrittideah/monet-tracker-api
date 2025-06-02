@@ -7,8 +7,8 @@ import (
 	"github.com/vasapolrittideah/money-tracker-api/services/user/server"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/database"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain/entity"
 	"github.com/vasapolrittideah/money-tracker-api/shared/logger"
+	"github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 	}
 
 	entities := []any{
-		&entity.User{},
+		&domain.User{},
 	}
 
 	if err := database.Migrate(db, entities); err != nil {

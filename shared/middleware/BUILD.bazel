@@ -7,7 +7,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//shared/config",
-        "//shared/domain/response",
+        "//shared/model/response",
         "//shared/utils/jwtutil",
         "@com_github_gofiber_fiber_v2//:fiber",
         "@org_golang_google_grpc//codes",

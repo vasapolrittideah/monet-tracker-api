@@ -3,7 +3,7 @@ load("@rules_go//go:def.bzl", "go_library")
 go_library(
     name = "response",
     srcs = ["response.go"],
-    importpath = "github.com/vasapolrittideah/money-tracker-api/shared/domain/response",
+    importpath = "github.com/vasapolrittideah/money-tracker-api/shared/model/response",
     visibility = ["//visibility:public"],
     deps = ["@org_golang_google_grpc//codes"],
 )

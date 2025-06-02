@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain/response"
+	"github.com/vasapolrittideah/money-tracker-api/shared/model/response"
 	"github.com/vasapolrittideah/money-tracker-api/shared/utils/jwtutil"
 	"google.golang.org/grpc/codes"
 )

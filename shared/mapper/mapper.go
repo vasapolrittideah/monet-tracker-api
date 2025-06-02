@@ -3,11 +3,11 @@ package mapper
 import (
 	"github.com/google/uuid"
 	userpb "github.com/vasapolrittideah/money-tracker-api/generated/protobuf/user"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain/entity"
+	"github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func MapUserEntityToProto(user *entity.User) *userpb.User {
+func MapUserEntityToProto(user *domain.User) *userpb.User {
 	return &userpb.User{
 		Id:                 uuid.UUID(user.Id).String(),
 		FullName:           user.FullName,
@@ -21,8 +21,8 @@ func MapUserEntityToProto(user *entity.User) *userpb.User {
 	}
 }
 
-func MapUserProtoToEntity(user *userpb.User) *entity.User {
-	return &entity.User{
+func MapUserProtoToEntity(user *userpb.User) *domain.User {
+	return &domain.User{
 		Id:                 uuid.MustParse(user.Id),
 		FullName:           user.FullName,
 		Email:              user.Email,

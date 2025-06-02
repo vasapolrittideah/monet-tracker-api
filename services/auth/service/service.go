@@ -9,10 +9,10 @@ import (
 	userpb "github.com/vasapolrittideah/money-tracker-api/generated/protobuf/user"
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/model"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain/apperror"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain/entity"
 	"github.com/vasapolrittideah/money-tracker-api/shared/logger"
 	"github.com/vasapolrittideah/money-tracker-api/shared/mapper"
+	"github.com/vasapolrittideah/money-tracker-api/shared/model/apperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
 	"github.com/vasapolrittideah/money-tracker-api/shared/utils/jwtutil"
 	"github.com/vasapolrittideah/money-tracker-api/shared/utils/passwordutil"
 	"google.golang.org/grpc/codes"
@@ -45,7 +45,7 @@ func (s *authService) SignUp(req *model.SignUpRequest) (*model.SignUpResponse, *
 		return nil, err
 	}
 
-	newUser := entity.User{
+	newUser := domain.User{
 		FullName:       req.FullName,
 		Email:          req.Email,
 		HashedPassword: hashedPassword,
@@ -121,7 +121,7 @@ func (s *authService) SignIn(req *model.SignInRequest) (*model.SignInResponse, *
 	}
 
 	jwtRes := &model.SignInResponse{
-		Jwt: &entity.Jwt{
+		Jwt: &domain.Jwt{
 			AccessToken:  accessToken,
 			RefreshToken: refreshToken,
 		},
