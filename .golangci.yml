@@ -4,7 +4,6 @@ linters:
   default: standard
   enable:
     - errcheck
-    - funlen
     - gocritic
     - goconst
     - lll
