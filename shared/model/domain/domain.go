@@ -1,5 +1,3 @@
-//nolint:lll
-
 package domain
 
 import (
@@ -18,10 +16,10 @@ type User struct {
 	LastSignInAt       *time.Time      `json:"last_sign_in_at"`
 	HashedPassword     string          `json:"-"               gorm:"not null"`
 	HashedRefreshToken string          `json:"-"`
-	SocialAccounts     []SocialAccount `json:"-"               gorm:"foreignKey:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ExternalLogins     []ExternalLogin `json:"-"               gorm:"foreignKey:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
-type SocialAccount struct {
+type ExternalLogin struct {
 	Id         uuid.UUID `gorm:"primaryKey;type:uuid;default:uuid_generate_v4()"`
 	Provider   string    `gorm:"not null"`
 	ProviderId string    `gorm:"not null"`
