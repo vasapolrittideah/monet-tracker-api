@@ -28,11 +28,18 @@ type ServerConfig struct {
 	AuthServiceHttpPort           string `env:"AUTH_SERVICE_HTTP_PORT"`
 }
 
+type OAuthGoogleConfig struct {
+	ClientId     string `env:"OAUTH_GOOGLE_CLIENT_ID"`
+	ClientSecret string `env:"OAUTH_GOOGLE_CLIENT_SECRET"`
+	RedirectUrl  string `env:"OAUTH_GOOGLE_REDIRECT_URL"`
+}
+
 type Config struct {
 	Environment string `env:"ENVIRONMENT"`
 	Jwt         JwtConfig
 	Server      ServerConfig
 	Database    DatabaseConfig
+	OAuthGoogle OAuthGoogleConfig
 }
 
 func Load() (*Config, error) {

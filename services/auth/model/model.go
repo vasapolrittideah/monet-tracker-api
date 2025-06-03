@@ -1,6 +1,8 @@
 package model
 
-import "github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
+import (
+	"github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
+)
 
 type SignUpRequest struct {
 	FullName string `json:"full_name" validate:"required"`

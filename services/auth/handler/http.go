@@ -10,7 +10,13 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-type AuthHttpHandler struct {
+type AuthHttpHandler interface {
+	RegisterRouter()
+	SignUp(c *fiber.Ctx) error
+	SignIn(c *fiber.Ctx) error
+}
+
+type authHttpHandler struct {
 	service    service.AuthService
 	middleware middleware.CoreMiddleware
 	router     fiber.Router
@@ -23,17 +29,17 @@ func NewAuthHttpHandler(
 	router fiber.Router,
 	cfg *config.Config,
 ) AuthHttpHandler {
-	return AuthHttpHandler{service, middleware, router, cfg}
+	return &authHttpHandler{service, middleware, router, cfg}
 }
 
-func (h AuthHttpHandler) RegisterRouter() {
+func (h *authHttpHandler) RegisterRouter() {
 	router := h.router.Group("/auth")
 
 	router.Post("/sign-up", h.SignUp)
 	router.Post("/sign-in", h.SignIn)
 }
 
-func (h AuthHttpHandler) SignUp(c *fiber.Ctx) error {
+func (h *authHttpHandler) SignUp(c *fiber.Ctx) error {
 	payload := new(model.SignUpRequest)
 
 	if err := c.BodyParser(payload); err != nil {
@@ -52,7 +58,7 @@ func (h AuthHttpHandler) SignUp(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(response.Success(res))
 }
 
-func (h AuthHttpHandler) SignIn(c *fiber.Ctx) error {
+func (h *authHttpHandler) SignIn(c *fiber.Ctx) error {
 	payload := new(model.SignInRequest)
 
 	if err := c.BodyParser(payload); err != nil {

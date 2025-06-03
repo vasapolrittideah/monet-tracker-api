@@ -75,6 +75,10 @@ func (s *httpServer) Run() {
 	authHandler := handler.NewAuthHttpHandler(authService, coreMiddleware, router, s.cfg)
 	authHandler.RegisterRouter()
 
+	oauthGoogleService := service.NewOAuthGoogleService(s.cfg)
+	oauthGoogleHandler := handler.NewOAuthGoogleHandler(oauthGoogleService, router, s.cfg)
+	oauthGoogleHandler.RegisterRouter()
+
 	go func() {
 		if err := app.Listen(":" + s.cfg.Server.AuthServiceHttpPort); err != nil {
 			logger.Fatal("AUTH", "failed to listen and serve application: %v", err)
