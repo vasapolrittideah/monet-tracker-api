@@ -13,8 +13,8 @@ import (
 	"github.com/vasapolrittideah/money-tracker-api/shared/mapper"
 	"github.com/vasapolrittideah/money-tracker-api/shared/model/apperror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
-	"github.com/vasapolrittideah/money-tracker-api/shared/utils/jwtutil"
 	"github.com/vasapolrittideah/money-tracker-api/shared/utils/passwordutil"
+	"github.com/vasapolrittideah/money-tracker-api/shared/utils/tokenutil"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -22,6 +22,7 @@ import (
 type AuthService interface {
 	SignUp(req *model.SignUpRequest) (*model.SignUpResponse, *apperror.Error)
 	SignIn(req *model.SignInRequest) (*model.SignInResponse, *apperror.Error)
+	GenerateTokens(userId uuid.UUID) (*domain.Jwt, *apperror.Error)
 }
 
 type authService struct {
@@ -40,9 +41,9 @@ func (s *authService) SignUp(req *model.SignUpRequest) (*model.SignUpResponse, *
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	hashedPassword, err := passwordutil.HashPassword(req.Password)
-	if err != nil {
-		return nil, err
+	hashedPassword, apperr := passwordutil.HashPassword(req.Password)
+	if apperr != nil {
+		return nil, apperr
 	}
 
 	newUser := domain.User{
@@ -51,13 +52,13 @@ func (s *authService) SignUp(req *model.SignUpRequest) (*model.SignUpResponse, *
 		HashedPassword: hashedPassword,
 	}
 
-	res, grpcErr := s.userClient.CreateUser(ctx, &userpb.CreateUserRequest{
+	res, err := s.userClient.CreateUser(ctx, &userpb.CreateUserRequest{
 		FullName:       newUser.FullName,
 		Email:          newUser.Email,
 		HashedPassword: newUser.HashedPassword,
 	})
-	if grpcErr != nil {
-		st := status.Convert(grpcErr)
+	if err != nil {
+		st := status.Convert(err)
 		logger.Error("AUTH", "%s", st.Err())
 		return nil, apperror.New(st.Code(), st.Err())
 	}
@@ -71,11 +72,11 @@ func (s *authService) SignIn(req *model.SignInRequest) (*model.SignInResponse, *
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	res, grpcErr := s.userClient.GetUserByEmail(ctx, &userpb.GetUserByEmailRequest{
+	res, err := s.userClient.GetUserByEmail(ctx, &userpb.GetUserByEmailRequest{
 		Email: req.Email,
 	})
-	if grpcErr != nil {
-		st := status.Convert(grpcErr)
+	if err != nil {
+		st := status.Convert(err)
 		return nil, apperror.New(st.Code(), st.Err())
 	}
 
@@ -86,25 +87,12 @@ func (s *authService) SignIn(req *model.SignInRequest) (*model.SignInResponse, *
 		return nil, apperror.New(codes.Unauthenticated, fmt.Errorf("password is incorrect"))
 	}
 
-	accessToken, err := jwtutil.GenerateJwt(
-		s.cfg.Jwt.AccessTokenExpiresIn,
-		s.cfg.Jwt.AccessTokenSecretKey,
-		userIdUuid,
-	)
-	if err != nil {
-		return nil, apperror.New(codes.Internal, fmt.Errorf("failed to generate access token: %v", err.Error()))
+	jwt, apperr := s.GenerateTokens(userIdUuid)
+	if apperr != nil {
+		return nil, apperr
 	}
 
-	refreshToken, err := jwtutil.GenerateJwt(
-		s.cfg.Jwt.RefreshTokenExpiresIn,
-		s.cfg.Jwt.RefreshTokenSecretKey,
-		userIdUuid,
-	)
-	if err != nil {
-		return nil, apperror.New(codes.Internal, fmt.Errorf("failed to generate refresh token: %v", err.Error()))
-	}
-
-	hashedRefreshToken, err := jwtutil.HashRefreshToken(refreshToken)
+	hashedRefreshToken, err := tokenutil.HashRefreshToken(jwt.RefreshToken)
 	if err != nil {
 		return nil, apperror.New(
 			codes.Internal,
@@ -120,12 +108,32 @@ func (s *authService) SignIn(req *model.SignInRequest) (*model.SignInResponse, *
 		return nil, apperror.New(st.Code(), st.Err())
 	}
 
-	jwtRes := &model.SignInResponse{
-		Jwt: &domain.Jwt{
-			AccessToken:  accessToken,
-			RefreshToken: refreshToken,
-		},
-	}
+	jwtRes := &model.SignInResponse{Jwt: jwt}
 
 	return jwtRes, nil
+}
+
+func (s *authService) GenerateTokens(userId uuid.UUID) (*domain.Jwt, *apperror.Error) {
+	accessToken, err := tokenutil.GenerateToken(
+		s.cfg.Jwt.AccessTokenExpiresIn,
+		s.cfg.Jwt.AccessTokenSecretKey,
+		userId,
+	)
+	if err != nil {
+		return nil, apperror.New(codes.Internal, fmt.Errorf("failed to generate access token: %v", err.Error()))
+	}
+
+	refreshToken, err := tokenutil.GenerateToken(
+		s.cfg.Jwt.RefreshTokenExpiresIn,
+		s.cfg.Jwt.RefreshTokenSecretKey,
+		userId,
+	)
+	if err != nil {
+		return nil, apperror.New(codes.Internal, fmt.Errorf("failed to generate refresh token: %v", err.Error()))
+	}
+
+	return &domain.Jwt{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }
