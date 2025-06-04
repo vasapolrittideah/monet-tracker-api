@@ -10,13 +10,13 @@ import (
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/model"
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/repository"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
+	"github.com/vasapolrittideah/money-tracker-api/shared/constants/errorcode"
 	"github.com/vasapolrittideah/money-tracker-api/shared/model/apperror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	googleOAuth "google.golang.org/api/oauth2/v2"
 	"google.golang.org/api/option"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
@@ -79,7 +79,7 @@ func (s *oauthGoogleService) HandleGoogleCallback(code string) (*model.SignInRes
 		return s.generateJwtResponse(externalLogin.UserId)
 	}
 
-	if apperr.Code != codes.NotFound {
+	if apperr.Code != errorcode.NotFound {
 		return nil, apperr
 	}
 
@@ -92,8 +92,9 @@ func (s *oauthGoogleService) HandleGoogleCallback(code string) (*model.SignInRes
 
 	if err != nil {
 		st := status.Convert(err)
-		if st.Code() != codes.NotFound {
-			return nil, apperror.New(st.Code(), st.Err())
+		code := errorcode.FromGrpcCode(st.Code())
+		if code != errorcode.NotFound {
+			return nil, apperror.New(code, st.Err())
 		}
 
 		// User not found, create user
@@ -104,10 +105,10 @@ func (s *oauthGoogleService) HandleGoogleCallback(code string) (*model.SignInRes
 		})
 		if err != nil {
 			st := status.Convert(err)
-			return nil, apperror.New(st.Code(), st.Err())
+			return nil, apperror.New(errorcode.FromGrpcCode(st.Code()), st.Err())
 		}
 
-		return nil, apperror.New(codes.NotFound, fmt.Errorf("user not registered"))
+		return nil, apperror.New(errorcode.NotRegistered, fmt.Errorf("user not registered"))
 	} else {
 		userId = uuid.MustParse(res.User.Id)
 	}
@@ -128,18 +129,18 @@ func (s *oauthGoogleService) HandleGoogleCallback(code string) (*model.SignInRes
 func (s *oauthGoogleService) getGoogleUserInfo(code string) (*googleOAuth.Userinfo, *apperror.Error) {
 	token, err := s.googleOAuthConfig.Exchange(context.Background(), code)
 	if err != nil {
-		return nil, apperror.New(codes.Internal, fmt.Errorf("failed to exchange token: %v", err.Error()))
+		return nil, apperror.New(errorcode.Internal, fmt.Errorf("failed to exchange token: %v", err.Error()))
 	}
 
 	client := s.googleOAuthConfig.Client(context.Background(), token)
 	svc, err := googleOAuth.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
-		return nil, apperror.New(codes.Internal, fmt.Errorf("failed to create google service: %v", err.Error()))
+		return nil, apperror.New(errorcode.Internal, fmt.Errorf("failed to create google service: %v", err.Error()))
 	}
 
 	userInfo, err := svc.Userinfo.Get().Do()
 	if err != nil {
-		return nil, apperror.New(codes.Internal, fmt.Errorf("failed to get user info: %v", err.Error()))
+		return nil, apperror.New(errorcode.Internal, fmt.Errorf("failed to get user info: %v", err.Error()))
 	}
 
 	return userInfo, nil

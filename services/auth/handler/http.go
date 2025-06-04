@@ -1,13 +1,15 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/model"
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/service"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
+	"github.com/vasapolrittideah/money-tracker-api/shared/constants/errorcode"
 	"github.com/vasapolrittideah/money-tracker-api/shared/middleware"
 	"github.com/vasapolrittideah/money-tracker-api/shared/model/response"
-	"google.golang.org/grpc/codes"
 )
 
 type AuthHttpHandler interface {
@@ -43,14 +45,14 @@ func (h *authHttpHandler) SignUp(c *fiber.Ctx) error {
 	payload := new(model.SignUpRequest)
 
 	if err := c.BodyParser(payload); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(
-			response.Error(codes.InvalidArgument, err.Error()),
+		return c.Status(http.StatusBadRequest).JSON(
+			response.Error(errorcode.InvalidArgument, err.Error()),
 		)
 	}
 
 	res, err := h.service.SignUp(payload)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(
+		return c.Status(err.Code.ToHttpStatus()).JSON(
 			response.Error(err.Code, err.Error()),
 		)
 	}
@@ -62,14 +64,14 @@ func (h *authHttpHandler) SignIn(c *fiber.Ctx) error {
 	payload := new(model.SignInRequest)
 
 	if err := c.BodyParser(payload); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(
-			response.Error(codes.InvalidArgument, err.Error()),
+		return c.Status(http.StatusBadRequest).JSON(
+			response.Error(errorcode.InvalidArgument, err.Error()),
 		)
 	}
 
 	res, err := h.service.SignIn(payload)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(
+		return c.Status(err.Code.ToHttpStatus()).JSON(
 			response.Error(err.Code, err.Error()),
 		)
 	}

@@ -5,8 +5,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/service"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
+	"github.com/vasapolrittideah/money-tracker-api/shared/constants/errorcode"
 	"github.com/vasapolrittideah/money-tracker-api/shared/model/response"
-	"google.golang.org/grpc/codes"
 )
 
 type UserHttpHandler interface {
@@ -41,7 +41,7 @@ func (h *userHttpHandler) RegisterRouter() {
 func (h *userHttpHandler) GetAllUsers(c *fiber.Ctx) error {
 	users, err := h.service.GetAllUsers()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(
+		return c.Status(err.Code.ToHttpStatus()).JSON(
 			response.Error(err.Code, err.Error()),
 		)
 	}
@@ -53,13 +53,13 @@ func (h *userHttpHandler) GetUserById(c *fiber.Ctx) error {
 	var id uuid.UUID
 	if err := c.ParamsParser(&id); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
-			response.Error(codes.InvalidArgument, err.Error()),
+			response.Error(errorcode.InvalidArgument, err.Error()),
 		)
 	}
 
 	user, err := h.service.GetUserById(id)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(
+		return c.Status(err.Code.ToHttpStatus()).JSON(
 			response.Error(err.Code, err.Error()),
 		)
 	}
@@ -71,13 +71,13 @@ func (h *userHttpHandler) GetUserByEmail(c *fiber.Ctx) error {
 	var email string
 	if err := c.ParamsParser(&email); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(
-			response.Error(codes.InvalidArgument, err.Error()),
+			response.Error(errorcode.InvalidArgument, err.Error()),
 		)
 	}
 
 	user, err := h.service.GetUserByEmail(email)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(
+		return c.Status(err.Code.ToHttpStatus()).JSON(
 			response.Error(err.Code, err.Error()),
 		)
 	}

@@ -3,23 +3,23 @@ package apperror
 import (
 	"fmt"
 
-	"google.golang.org/grpc/codes"
+	"github.com/vasapolrittideah/money-tracker-api/shared/constants/errorcode"
 )
 
 type Error struct {
-	Code codes.Code
+	Code errorcode.Code
 	Err  error
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("[%s] %v", e.Code.String(), e.Err)
+	return fmt.Sprintf("[%s] %v", e.Code, e.Err)
 }
 
 func (e *Error) Unwrap() error {
 	return e.Err
 }
 
-func New(code codes.Code, err error) *Error {
+func New(code errorcode.Code, err error) *Error {
 	return &Error{
 		Code: code,
 		Err:  err,

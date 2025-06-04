@@ -9,13 +9,13 @@ import (
 	userpb "github.com/vasapolrittideah/money-tracker-api/generated/protobuf/user"
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/model"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
+	"github.com/vasapolrittideah/money-tracker-api/shared/constants/errorcode"
 	"github.com/vasapolrittideah/money-tracker-api/shared/logger"
 	"github.com/vasapolrittideah/money-tracker-api/shared/mapper"
 	"github.com/vasapolrittideah/money-tracker-api/shared/model/apperror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
 	"github.com/vasapolrittideah/money-tracker-api/shared/utils/passwordutil"
 	"github.com/vasapolrittideah/money-tracker-api/shared/utils/tokenutil"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
@@ -60,7 +60,7 @@ func (s *authService) SignUp(req *model.SignUpRequest) (*model.SignUpResponse, *
 	if err != nil {
 		st := status.Convert(err)
 		logger.Error("AUTH", "%s", st.Err())
-		return nil, apperror.New(st.Code(), st.Err())
+		return nil, apperror.New(errorcode.FromGrpcCode(st.Code()), st.Err())
 	}
 
 	return &model.SignUpResponse{
@@ -77,14 +77,14 @@ func (s *authService) SignIn(req *model.SignInRequest) (*model.SignInResponse, *
 	})
 	if err != nil {
 		st := status.Convert(err)
-		return nil, apperror.New(st.Code(), st.Err())
+		return nil, apperror.New(errorcode.FromGrpcCode(st.Code()), st.Err())
 	}
 
 	user := res.User
 	userIdUuid := uuid.MustParse(user.Id)
 
 	if ok, err := passwordutil.VerifyPassword(user.HashedPassword, req.Password); err != nil || !ok {
-		return nil, apperror.New(codes.Unauthenticated, fmt.Errorf("password is incorrect"))
+		return nil, apperror.New(errorcode.Unauthenticated, fmt.Errorf("password is incorrect"))
 	}
 
 	jwt, apperr := s.GenerateTokens(userIdUuid)
@@ -95,7 +95,7 @@ func (s *authService) SignIn(req *model.SignInRequest) (*model.SignInResponse, *
 	hashedRefreshToken, err := tokenutil.HashRefreshToken(jwt.RefreshToken)
 	if err != nil {
 		return nil, apperror.New(
-			codes.Internal,
+			errorcode.Internal,
 			fmt.Errorf("failed to hash newly generated refresh token: %v", err.Error()),
 		)
 	}
@@ -105,7 +105,7 @@ func (s *authService) SignIn(req *model.SignInRequest) (*model.SignInResponse, *
 		User: user,
 	}); err != nil {
 		st := status.Convert(err)
-		return nil, apperror.New(st.Code(), st.Err())
+		return nil, apperror.New(errorcode.FromGrpcCode(st.Code()), st.Err())
 	}
 
 	jwtRes := &model.SignInResponse{Jwt: jwt}
@@ -120,7 +120,7 @@ func (s *authService) GenerateTokens(userId uuid.UUID) (*domain.Jwt, *apperror.E
 		userId,
 	)
 	if err != nil {
-		return nil, apperror.New(codes.Internal, fmt.Errorf("failed to generate access token: %v", err.Error()))
+		return nil, apperror.New(errorcode.Internal, fmt.Errorf("failed to generate access token: %v", err.Error()))
 	}
 
 	refreshToken, err := tokenutil.GenerateToken(
@@ -129,7 +129,7 @@ func (s *authService) GenerateTokens(userId uuid.UUID) (*domain.Jwt, *apperror.E
 		userId,
 	)
 	if err != nil {
-		return nil, apperror.New(codes.Internal, fmt.Errorf("failed to generate refresh token: %v", err.Error()))
+		return nil, apperror.New(errorcode.Internal, fmt.Errorf("failed to generate refresh token: %v", err.Error()))
 	}
 
 	return &domain.Jwt{

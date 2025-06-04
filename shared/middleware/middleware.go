@@ -5,9 +5,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
+	"github.com/vasapolrittideah/money-tracker-api/shared/constants/errorcode"
 	"github.com/vasapolrittideah/money-tracker-api/shared/model/response"
 	jwtutil "github.com/vasapolrittideah/money-tracker-api/shared/utils/tokenutil"
-	"google.golang.org/grpc/codes"
 )
 
 type CoreMiddleware interface {
@@ -35,14 +35,14 @@ func (m coreMiddleware) Authenticate(tokenType TokenType) fiber.Handler {
 		token := c.Get("Authorization")
 		if token == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(
-				response.Error(codes.Unauthenticated, "No Authorization header found"),
+				response.Error(errorcode.Unauthenticated, "No Authorization header found"),
 			)
 		}
 
 		headerParts := strings.Split(token, " ")
 		if len(headerParts) != 2 || headerParts[0] != bearer {
 			return c.Status(fiber.StatusUnauthorized).JSON(
-				response.Error(codes.Unauthenticated, "Malformed Authorization header"),
+				response.Error(errorcode.Unauthenticated, "Malformed Authorization header"),
 			)
 		}
 
@@ -57,7 +57,7 @@ func (m coreMiddleware) Authenticate(tokenType TokenType) fiber.Handler {
 		claims, err := jwtutil.ParseToken(headerParts[1], secretKey)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(
-				response.Error(codes.Unauthenticated, err.Error()),
+				response.Error(errorcode.Unauthenticated, err.Error()),
 			)
 		}
 

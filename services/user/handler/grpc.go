@@ -43,7 +43,7 @@ func (h *userGrpcHandler) GetAllUsers(
 ) (*userpb.GetAllUsersResponse, error) {
 	users, err := h.service.GetAllUsers()
 	if err != nil {
-		return nil, status.Errorf(err.Code, "%s", err.Error())
+		return nil, status.Errorf(err.Code.ToGrpcCode(), "%s", err.Error())
 	}
 
 	var protoUsers []*userpb.User
@@ -63,7 +63,7 @@ func (h *userGrpcHandler) GetUserById(
 ) (*userpb.GetUserByIdResponse, error) {
 	user, err := h.service.GetUserById(uuid.MustParse(req.UserId))
 	if err != nil {
-		return nil, status.Errorf(err.Code, "%s", err.Error())
+		return nil, status.Errorf(err.Code.ToGrpcCode(), "%s", err.Error())
 	}
 
 	res := &userpb.GetUserByIdResponse{
@@ -78,7 +78,7 @@ func (h *userGrpcHandler) GetUserByEmail(
 ) (*userpb.GetUserByEmailResponse, error) {
 	user, err := h.service.GetUserByEmail(req.Email)
 	if err != nil {
-		return nil, status.Errorf(err.Code, "%s", err.Error())
+		return nil, status.Errorf(err.Code.ToGrpcCode(), "%s", err.Error())
 	}
 
 	res := &userpb.GetUserByEmailResponse{
@@ -97,7 +97,7 @@ func (h *userGrpcHandler) CreateUser(
 		HashedPassword: req.HashedPassword,
 	})
 	if err != nil {
-		return nil, status.Errorf(err.Code, "%s", err.Error())
+		return nil, status.Errorf(err.Code.ToGrpcCode(), "%s", err.Error())
 	}
 
 	res := &userpb.CreateUserResponse{
@@ -119,7 +119,7 @@ func (h *userGrpcHandler) UpdateUser(
 
 	user, err := h.service.UpdateUser(userIdUUid, newUserData)
 	if err != nil {
-		return nil, status.Errorf(err.Code, "%s", err.Error())
+		return nil, status.Errorf(err.Code.ToGrpcCode(), "%s", err.Error())
 	}
 
 	res := &userpb.UpdateUserResponse{
@@ -134,7 +134,7 @@ func (h *userGrpcHandler) DeleteUser(
 ) (*userpb.DeleteUserResponse, error) {
 	user, err := h.service.DeleteUser(uuid.MustParse(req.UserId))
 	if err != nil {
-		return nil, status.Errorf(err.Code, "%s", err.Error())
+		return nil, status.Errorf(err.Code.ToGrpcCode(), "%s", err.Error())
 	}
 
 	res := &userpb.DeleteUserResponse{

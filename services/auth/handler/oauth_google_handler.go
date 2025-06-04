@@ -43,7 +43,7 @@ func (h *oauthGoogleHandler) GoogleCallback(c *fiber.Ctx) error {
 	code := c.Query("code")
 	user, err := h.service.HandleGoogleCallback(code)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(
+		return c.Status(err.Code.ToHttpStatus()).JSON(
 			response.Error(err.Code, err.Error()),
 		)
 	}

@@ -7,8 +7,8 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/matthewhartstonge/argon2"
+	"github.com/vasapolrittideah/money-tracker-api/shared/constants/errorcode"
 	"github.com/vasapolrittideah/money-tracker-api/shared/model/apperror"
-	"google.golang.org/grpc/codes"
 )
 
 func GenerateToken(ttl time.Duration, secretKey string, userId uuid.UUID) (string, error) {
@@ -21,7 +21,7 @@ func GenerateToken(ttl time.Duration, secretKey string, userId uuid.UUID) (strin
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secretKey))
 	if err != nil {
-		return "", apperror.New(codes.Internal, fmt.Errorf("unable to sign token: %v", err.Error()))
+		return "", apperror.New(errorcode.Internal, fmt.Errorf("unable to sign token: %v", err.Error()))
 	}
 
 	return token, nil
@@ -31,7 +31,7 @@ func ValidateToken(token string, secretKey string) (*jwt.Token, error) {
 	parsed, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, apperror.New(
-				codes.Internal,
+				errorcode.Internal,
 				fmt.Errorf("unexpected signing method: %v", t.Header["alg"]),
 			)
 		}
@@ -39,7 +39,7 @@ func ValidateToken(token string, secretKey string) (*jwt.Token, error) {
 		return []byte(secretKey), nil
 	})
 	if err != nil {
-		return nil, apperror.New(codes.Internal, fmt.Errorf("unable to parse token: %v", err.Error()))
+		return nil, apperror.New(errorcode.Internal, fmt.Errorf("unable to parse token: %v", err.Error()))
 	}
 
 	return parsed, nil
@@ -48,12 +48,12 @@ func ValidateToken(token string, secretKey string) (*jwt.Token, error) {
 func ParseToken(tokenString string, secretKey string) (*jwt.MapClaims, error) {
 	token, err := ValidateToken(tokenString, secretKey)
 	if err != nil {
-		return nil, apperror.New(codes.Internal, fmt.Errorf("token is invalid or has been expired"))
+		return nil, apperror.New(errorcode.Internal, fmt.Errorf("token is invalid or has been expired"))
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return nil, apperror.New(codes.Unauthenticated, fmt.Errorf("token is invalid"))
+		return nil, apperror.New(errorcode.Unauthenticated, fmt.Errorf("token is invalid"))
 	}
 
 	return &claims, nil
@@ -64,7 +64,7 @@ func HashRefreshToken(refreshToken string) (string, error) {
 
 	encoded, err := argon.HashEncoded([]byte(refreshToken))
 	if err != nil {
-		return "", apperror.New(codes.Internal, fmt.Errorf("unable to hash refresh token: %v", err.Error()))
+		return "", apperror.New(errorcode.Internal, fmt.Errorf("unable to hash refresh token: %v", err.Error()))
 	}
 
 	return string(encoded), nil
