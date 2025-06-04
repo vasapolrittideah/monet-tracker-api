@@ -14,7 +14,7 @@ type User struct {
 	CreatedAt          time.Time       `json:"created_at"      gorm:"autoCreateTime"`
 	UpdatedAt          time.Time       `json:"updated_at"      gorm:"autoUpdateTime"`
 	LastSignInAt       *time.Time      `json:"last_sign_in_at"`
-	HashedPassword     string          `json:"-"               gorm:"not null"`
+	HashedPassword     string          `json:"-"`
 	HashedRefreshToken string          `json:"-"`
 	ExternalLogins     []ExternalLogin `json:"-"               gorm:"foreignKey:UserId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }

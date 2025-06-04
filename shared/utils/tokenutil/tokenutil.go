@@ -1,4 +1,4 @@
-package jwtutil
+package tokenutil
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-func GenerateJwt(ttl time.Duration, secretKey string, userId uuid.UUID) (string, error) {
+func GenerateToken(ttl time.Duration, secretKey string, userId uuid.UUID) (string, error) {
 	now := time.Now()
 	claims := jwt.MapClaims{
 		"sub": userId.String(),
@@ -27,7 +27,7 @@ func GenerateJwt(ttl time.Duration, secretKey string, userId uuid.UUID) (string,
 	return token, nil
 }
 
-func ValidateJwt(token string, secretKey string) (*jwt.Token, error) {
+func ValidateToken(token string, secretKey string) (*jwt.Token, error) {
 	parsed, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, apperror.New(
@@ -46,7 +46,7 @@ func ValidateJwt(token string, secretKey string) (*jwt.Token, error) {
 }
 
 func ParseToken(tokenString string, secretKey string) (*jwt.MapClaims, error) {
-	token, err := ValidateJwt(tokenString, secretKey)
+	token, err := ValidateToken(tokenString, secretKey)
 	if err != nil {
 		return nil, apperror.New(codes.Internal, fmt.Errorf("token is invalid or has been expired"))
 	}

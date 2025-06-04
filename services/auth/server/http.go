@@ -14,20 +14,23 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	userpb "github.com/vasapolrittideah/money-tracker-api/generated/protobuf/user"
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/handler"
+	"github.com/vasapolrittideah/money-tracker-api/services/auth/repository"
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/service"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/logger"
 	"github.com/vasapolrittideah/money-tracker-api/shared/middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"gorm.io/gorm"
 )
 
 type httpServer struct {
 	cfg *config.Config
+	db  *gorm.DB
 }
 
-func NewAuthHttpServer(cfg *config.Config) *httpServer {
-	return &httpServer{cfg: cfg}
+func NewAuthHttpServer(cfg *config.Config, db *gorm.DB) *httpServer {
+	return &httpServer{cfg: cfg, db: db}
 }
 
 func (s *httpServer) Run() {
@@ -70,12 +73,13 @@ func (s *httpServer) Run() {
 	userClient := userpb.NewUserServiceClient(conn)
 	router := app.Group("/api")
 
+	authRepo := repository.NewAuthRepository(s.db)
 	authService := service.NewAuthService(userClient, s.cfg)
 	coreMiddleware := middleware.NewCoreMiddleware(s.cfg)
 	authHandler := handler.NewAuthHttpHandler(authService, coreMiddleware, router, s.cfg)
 	authHandler.RegisterRouter()
 
-	oauthGoogleService := service.NewOAuthGoogleService(s.cfg)
+	oauthGoogleService := service.NewOAuthGoogleService(userClient, authService, authRepo, s.cfg)
 	oauthGoogleHandler := handler.NewOAuthGoogleHandler(oauthGoogleService, router, s.cfg)
 	oauthGoogleHandler.RegisterRouter()
 

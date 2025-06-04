@@ -1,6 +1,8 @@
 package mapper
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	userpb "github.com/vasapolrittideah/money-tracker-api/generated/protobuf/user"
 	"github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
@@ -17,7 +19,12 @@ func MapUserEntityToProto(user *domain.User) *userpb.User {
 		Verified:           user.Verified,
 		CreatedAt:          timestamppb.New(user.CreatedAt),
 		UpdatedAt:          timestamppb.New(user.UpdatedAt),
-		LastSignInAt:       timestamppb.New(user.LastSignInAt),
+		LastSignInAt: func() *timestamppb.Timestamp {
+			if user.LastSignInAt != nil {
+				return timestamppb.New(*user.LastSignInAt)
+			}
+			return nil
+		}(),
 	}
 }
 
@@ -31,6 +38,12 @@ func MapUserProtoToEntity(user *userpb.User) *domain.User {
 		Verified:           user.Verified,
 		CreatedAt:          user.CreatedAt.AsTime(),
 		UpdatedAt:          user.UpdatedAt.AsTime(),
-		LastSignInAt:       user.LastSignInAt.AsTime(),
+		LastSignInAt: func() *time.Time {
+			if user.LastSignInAt != nil {
+				t := user.LastSignInAt.AsTime()
+				return &t
+			}
+			return nil
+		}(),
 	}
 }
