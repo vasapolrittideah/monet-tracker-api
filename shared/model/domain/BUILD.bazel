@@ -1,9 +1,0 @@
-load("@rules_go//go:def.bzl", "go_library")
-
-go_library(
-    name = "domain",
-    srcs = ["domain.go"],
-    importpath = "github.com/vasapolrittideah/money-tracker-api/shared/model/domain",
-    visibility = ["//visibility:public"],
-    deps = ["@com_github_google_uuid//:uuid"],
-)

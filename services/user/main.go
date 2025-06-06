@@ -1,42 +1,56 @@
 package main
 
 import (
+	"fmt"
+	"net"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/charmbracelet/log"
-	"github.com/vasapolrittideah/money-tracker-api/services/user/server"
-	"github.com/vasapolrittideah/money-tracker-api/shared/config"
-	"github.com/vasapolrittideah/money-tracker-api/shared/database"
-	"github.com/vasapolrittideah/money-tracker-api/shared/logger"
-	"github.com/vasapolrittideah/money-tracker-api/shared/model/domain"
+	"github.com/vasapolrittideah/money-tracker-api/services/user/controller"
+	"github.com/vasapolrittideah/money-tracker-api/services/user/repository"
+	"github.com/vasapolrittideah/money-tracker-api/services/user/usecase"
+	"github.com/vasapolrittideah/money-tracker-api/shared/bootstrap"
+	"google.golang.org/grpc"
 )
 
 func main() {
-	logger.InitLogger(os.Stderr, log.DebugLevel)
+	app := bootstrap.NewApp()
+	defer app.Close()
 
-	cfg, err := config.Load()
+	addr := fmt.Sprintf(":%v", app.Config.Server.UserServicePort)
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		logger.Fatal("USER", "failed to load configuration: %v", err)
+		log.Errorf("failed to listen on %s: %v", addr, err)
+		return
 	}
+	defer func() {
+		if err := lis.Close(); err != nil {
+			log.Errorf("failed to close listener: %v", err)
+		}
+	}()
 
-	db, err := database.Connect(&cfg.Database)
-	if err != nil {
-		logger.Fatal("USER", "failed to connect to database: %v", err)
-	} else {
-		logger.Info("USER", "🎉 connected to database: %s", cfg.Database.Name)
-	}
+	grpcServer := grpc.NewServer()
 
-	entities := []any{
-		&domain.User{},
-	}
+	UserRepository := repository.NewUserRepository(app.DB)
+	userService := usecase.NewUserUsecase(UserRepository, app.Config)
+	controller.NewUserController(grpcServer, userService, app.Config)
 
-	if err := database.Migrate(db, entities); err != nil {
-		logger.Fatal("USER", "failed to migrate database: %v", err)
-	}
+	go func() {
+		log.Infof("🚀 user service started on port %v", app.Config.Server.UserServicePort)
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatal("failed to serve grpc server: %v", err)
+		}
+	}()
 
-	httpServer := server.NewUserHttpServer(cfg, db)
-	go httpServer.Run()
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	grpcServer := server.NewUserGrpcServer(cfg, db)
-	grpcServer.Run()
+	<-quit
+	log.Info("👋 shutdown signal received, stopping server...")
+
+	grpcServer.GracefulStop()
+
+	log.Info("👋 server stopped, see you later")
 }

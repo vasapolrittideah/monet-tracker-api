@@ -11,7 +11,7 @@ type Application struct {
 	DB     *gorm.DB
 }
 
-func App() Application {
+func NewApp() Application {
 	app := &Application{}
 	app.Config = config.Load()
 	app.DB = database.Connect(&app.Config.Database)
