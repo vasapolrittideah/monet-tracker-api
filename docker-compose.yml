@@ -12,6 +12,23 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: always
 
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    container_name: gateway-container
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    environment:
+      - ENVIRONMENT=development
+      - TERM=xterm-256color
+      - COMPOSE_BAKE=true
+    env_file:
+      - path: .env
+        required: true
+
   user:
     build:
       context: .
