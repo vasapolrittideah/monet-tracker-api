@@ -18,7 +18,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	app := bootstrap.App()
+	app := bootstrap.NewApp()
 	defer app.Close()
 
 	ropts := []runtime.ServeMuxOption{

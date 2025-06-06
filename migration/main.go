@@ -18,7 +18,7 @@ func main() {
 
 	os.Setenv("POSTGRES_HOST", "localhost")
 
-	app := bootstrap.App()
+	app := bootstrap.NewApp()
 	defer app.Close()
 
 	if err := app.DB.AutoMigrate(
