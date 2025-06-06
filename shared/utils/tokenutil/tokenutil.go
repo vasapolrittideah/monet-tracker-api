@@ -5,7 +5,6 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
-	"github.com/matthewhartstonge/argon2"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -53,19 +52,4 @@ func ParseToken(tokenString string, secretKey string) (*jwt.MapClaims, error) {
 	}
 
 	return &claims, nil
-}
-
-func HashRefreshToken(refreshToken string) (string, error) {
-	argon := argon2.DefaultConfig()
-
-	encoded, err := argon.HashEncoded([]byte(refreshToken))
-	if err != nil {
-		return "", status.Errorf(codes.Internal, "unable to hash refresh token: %v", err.Error())
-	}
-
-	return string(encoded), nil
-}
-
-func VerifyRefreshToken(encoded string, refreshToken string) (bool, error) {
-	return argon2.VerifyEncoded([]byte(refreshToken), []byte(encoded))
 }
