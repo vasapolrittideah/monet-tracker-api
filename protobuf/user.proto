@@ -5,10 +5,10 @@ package user;
 option go_package = ".;proto";
 
 import "google/api/annotations.proto";
-import "empty.proto";
+import "common.proto";
 
 service UserService {
-  rpc GetAllUsers (empty.Empty) returns (GetAllUsersResponse) {
+  rpc GetAllUsers (common.Empty) returns (GetAllUsersResponse) {
     option (google.api.http) = {
       get: "/users"
     };

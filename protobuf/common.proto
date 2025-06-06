@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = ".;proto";
+
+message Empty {}
+
+message ValidationError {
+  string field = 1;
+  string message = 2;
+}
+
+message ValidationErrorList {
+  repeated ValidationError errors = 1;
+}
