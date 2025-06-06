@@ -50,18 +50,12 @@ all: bazel-gazelle bazel-tidy bazel-build bazel-test
 # === Protobuf Targets ===
 .PHONY: proto
 proto:
-	@echo "🔧 Generating protobuf files..."
-	@mkdir -p $(OUT_DIR)
-	@for file in $(PROTO_FILES); do \
-		base=$$(basename $$file .proto); \
-		mkdir -p $(OUT_DIR)/$$base; \
-		protoc \
-			--proto_path=$(PROTO_DIR) \
-			--go_out=$(OUT_DIR)/$$base \
-			--go_opt=paths=source_relative \
-			--go-grpc_out=$(OUT_DIR)/$$base \
-			--go-grpc_opt=paths=source_relative \
-			$$file; \
-		echo "✅ Generated: $$file -> $(OUT_DIR)/$$base"; \
-	done
+	protoc \
+		-I=./protobuf \
+		--go_out=./protogen \
+		--go_opt=paths=source_relative \
+		--go-grpc_out=./protogen \
+		--go-grpc_opt=paths=source_relative \
+		--grpc-gateway_out=logtostderr=true:./protogen \
+		./protobuf/*.proto
 	
