@@ -1,7 +1,6 @@
 package bootstrap
 
 import (
-	"github.com/charmbracelet/log"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/database"
 	"gorm.io/gorm"
@@ -14,17 +13,8 @@ type Application struct {
 
 func App() Application {
 	app := &Application{}
-
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatal("failed to load configuration: %v", err)
-	}
-	app.Config = cfg
-
-	app.DB, err = database.Connect(&app.Config.Database)
-	if err != nil {
-		log.Fatal("failed to connect to database: %v", err)
-	}
+	app.Config = config.Load()
+	app.DB = database.Connect(&app.Config.Database)
 
 	return *app
 }

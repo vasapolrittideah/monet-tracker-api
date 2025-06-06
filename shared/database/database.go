@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Connect(dbConfig *config.DatabaseConfig) (*gorm.DB, error) {
+func Connect(dbConfig *config.DatabaseConfig) *gorm.DB {
 	dsn := fmt.Sprintf(
 		"user=%s password=%s host=%s port=%s dbname=%s sslmode=disable TimeZone=Asia/Bangkok",
 		dbConfig.User,
@@ -19,12 +19,18 @@ func Connect(dbConfig *config.DatabaseConfig) (*gorm.DB, error) {
 		dbConfig.Name,
 	)
 
-	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("failed to connect to database: %v", err)
+	}
+
+	return db
 }
 
-func Migrate(db *gorm.DB, models []any) error {
-	db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
-	return db.AutoMigrate(models...)
+func Migrate(db *gorm.DB, models []any) {
+	if err := db.AutoMigrate(models...); err != nil {
+		log.Fatal("failed to migrate database: %v", err)
+	}
 }
 
 func Close(db *gorm.DB) {

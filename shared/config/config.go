@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/charmbracelet/log"
 )
 
 type JWTConfig struct {
@@ -43,11 +44,11 @@ type Config struct {
 	OAuthGoogle OAuthGoogleConfig
 }
 
-func Load() (*Config, error) {
+func Load() *Config {
 	var config Config
 	if err := env.Parse(&config); err != nil {
-		return nil, err
+		log.Fatal("failed to parse environment variables: %v", err)
 	}
 
-	return &config, nil
+	return &config
 }
