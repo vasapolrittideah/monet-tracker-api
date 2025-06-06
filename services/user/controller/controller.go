@@ -4,17 +4,16 @@ import (
 	"context"
 
 	"github.com/charmbracelet/log"
-	proto "github.com/vasapolrittideah/money-tracker-api/protogen"
+	userv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
-	"github.com/vasapolrittideah/money-tracker-api/shared/validator"
 	"google.golang.org/grpc"
 )
 
 type userController struct {
 	usecase domain.UserUsecase
 	config  *config.Config
-	proto.UnimplementedUserServiceServer
+	userv1.UnimplementedUserServiceServer
 }
 
 func NewUserController(grpc *grpc.Server, usecase domain.UserUsecase, config *config.Config) {
@@ -23,57 +22,54 @@ func NewUserController(grpc *grpc.Server, usecase domain.UserUsecase, config *co
 		config:  config,
 	}
 
-	proto.RegisterUserServiceServer(grpc, handler)
+	userv1.RegisterUserServiceServer(grpc, handler)
 }
 
-func (c *userController) GetAllUsers(ctx context.Context, req *proto.Empty) (*proto.GetAllUsersResponse, error) {
+func (c *userController) GetAllUsers(
+	ctx context.Context,
+	req *userv1.GetAllUsersRequest,
+) (*userv1.GetAllUsersResponse, error) {
 	users, err := c.usecase.GetAllUsers()
 	if err != nil {
 		return nil, err
 	}
 
-	protoUsers := make([]*proto.User, 0, len(users))
+	protoUsers := make([]*userv1.User, 0, len(users))
 	for _, user := range users {
 		protoUsers = append(protoUsers, user.ToProto())
 	}
 
-	return &proto.GetAllUsersResponse{Users: protoUsers}, nil
+	return &userv1.GetAllUsersResponse{Users: protoUsers}, nil
 }
 
 func (c *userController) GetUserByID(
 	ctx context.Context,
-	req *proto.GetUserByIDRequest,
-) (*proto.GetUserByIDResponse, error) {
+	req *userv1.GetUserByIDRequest,
+) (*userv1.GetUserByIDResponse, error) {
 	user, err := c.usecase.GetUserByID(req.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	return &proto.GetUserByIDResponse{User: user.ToProto()}, nil
+	return &userv1.GetUserByIDResponse{User: user.ToProto()}, nil
 }
 
 func (c *userController) GetUserByEmail(
 	ctx context.Context,
-	req *proto.GetUserByEmailRequest,
-) (*proto.GetUserByEmailResponse, error) {
+	req *userv1.GetUserByEmailRequest,
+) (*userv1.GetUserByEmailResponse, error) {
 	user, err := c.usecase.GetUserByEmail(req.Email)
 	if err != nil {
 		return nil, err
 	}
 
-	return &proto.GetUserByEmailResponse{User: user.ToProto()}, nil
+	return &userv1.GetUserByEmailResponse{User: user.ToProto()}, nil
 }
 
 func (c *userController) CreateUser(
 	ctx context.Context,
-	req *proto.CreateUserRequest,
-) (*proto.CreateUserResponse, error) {
-	input := new(domain.CreateUserInput)
-	input.Populate(req)
-	if err := validator.ValidateInput(ctx, input); err != nil {
-		return nil, err
-	}
-
+	req *userv1.CreateUserRequest,
+) (*userv1.CreateUserResponse, error) {
 	user := &domain.User{
 		FullName:           req.FullName,
 		Email:              req.Email,
@@ -87,19 +83,13 @@ func (c *userController) CreateUser(
 		return nil, err
 	}
 
-	return &proto.CreateUserResponse{User: createdUser.ToProto()}, nil
+	return &userv1.CreateUserResponse{User: createdUser.ToProto()}, nil
 }
 
 func (c *userController) UpdateUser(
 	ctx context.Context,
-	req *proto.UpdateUserRequest,
-) (*proto.UpdateUserResponse, error) {
-	input := new(domain.UpdateUserInput)
-	input.Populate(req)
-	if err := validator.ValidateInput(ctx, input); err != nil {
-		return nil, err
-	}
-
+	req *userv1.UpdateUserRequest,
+) (*userv1.UpdateUserResponse, error) {
 	user := &domain.User{
 		FullName:           req.FullName,
 		Email:              req.Email,
@@ -114,17 +104,17 @@ func (c *userController) UpdateUser(
 		return nil, err
 	}
 
-	return &proto.UpdateUserResponse{User: updatedUser.ToProto()}, nil
+	return &userv1.UpdateUserResponse{User: updatedUser.ToProto()}, nil
 }
 
 func (c *userController) DeleteUser(
 	ctx context.Context,
-	req *proto.DeleteUserRequest,
-) (*proto.DeleteUserResponse, error) {
+	req *userv1.DeleteUserRequest,
+) (*userv1.DeleteUserResponse, error) {
 	deletedUser, err := c.usecase.DeleteUser(req.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	return &proto.DeleteUserResponse{User: deletedUser.ToProto()}, nil
+	return &userv1.DeleteUserResponse{User: deletedUser.ToProto()}, nil
 }

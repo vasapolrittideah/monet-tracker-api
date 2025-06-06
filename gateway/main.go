@@ -7,7 +7,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	proto "github.com/vasapolrittideah/money-tracker-api/protogen"
+	userv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	"github.com/vasapolrittideah/money-tracker-api/shared/bootstrap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -37,7 +37,7 @@ func main() {
 
 	// user
 	userEndpoint := fmt.Sprintf("%v:%v", app.Config.Server.UserServiceHost, app.Config.Server.UserServicePort)
-	err := proto.RegisterUserServiceHandlerFromEndpoint(ctx, mux, userEndpoint, opts)
+	err := userv1.RegisterUserServiceHandlerFromEndpoint(ctx, mux, userEndpoint, opts)
 	if err != nil {
 		log.Fatal("failed to register user service: %v", err)
 	}

@@ -1,7 +1,7 @@
 package domain
 
 import (
-	proto "github.com/vasapolrittideah/money-tracker-api/protogen"
+	userv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	"gorm.io/gorm"
 )
 
@@ -14,8 +14,8 @@ type User struct {
 	HashedRefreshToken string
 }
 
-func (u *User) ToProto() *proto.User {
-	return &proto.User{
+func (u *User) ToProto() *userv1.User {
+	return &userv1.User{
 		Id:       uint64(u.ID),
 		FullName: u.FullName,
 		Email:    u.Email,
@@ -39,37 +39,4 @@ type UserUsecase interface {
 	CreateUser(user *User) (*User, error)
 	UpdateUser(id uint64, user *User) (*User, error)
 	DeleteUser(id uint64) (*User, error)
-}
-
-// validate input body
-
-type CreateUserInput struct {
-	FullName           string `validate:"required"`
-	Email              string `validate:"required,email"`
-	Verified           bool
-	HashedPassword     string `validate:"required"`
-	HashedRefreshToken string
-}
-
-func (i *CreateUserInput) Populate(req *proto.CreateUserRequest) {
-	i.FullName = req.FullName
-	i.Email = req.Email
-	i.HashedPassword = req.HashedPassword
-}
-
-type UpdateUserInput struct {
-	ID                 uint64 `validate:"required"`
-	FullName           string
-	Email              string `validate:"email"`
-	Verified           bool
-	HashedPassword     string
-	HashedRefreshToken string
-}
-
-func (i *UpdateUserInput) Populate(req *proto.UpdateUserRequest) {
-	i.ID = req.Id
-	i.FullName = req.FullName
-	i.Email = req.Email
-	i.HashedPassword = req.HashedPassword
-	i.HashedRefreshToken = req.HashedRefreshToken
 }

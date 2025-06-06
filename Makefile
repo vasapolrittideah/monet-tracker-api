@@ -46,16 +46,3 @@ bazel-clean:
 init: bazel-gazelle bazel-tidy
 
 all: bazel-gazelle bazel-tidy bazel-build bazel-test
-
-# === Protobuf Targets ===
-.PHONY: proto
-proto:
-	protoc \
-		-I=./protobuf \
-		--go_out=./protogen \
-		--go_opt=paths=source_relative \
-		--go-grpc_out=./protogen \
-		--go-grpc_opt=paths=source_relative \
-		--grpc-gateway_out=logtostderr=true:./protogen \
-		./protobuf/*.proto
-	

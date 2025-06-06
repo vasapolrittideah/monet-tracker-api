@@ -1,14 +1,13 @@
 syntax = "proto3";
 
-package user;
+package user.v1;
 
-option go_package = ".;proto";
+option go_package = "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1;userv1";
 
 import "google/api/annotations.proto";
-import "common.proto";
 
 service UserService {
-  rpc GetAllUsers (common.Empty) returns (GetAllUsersResponse) {
+  rpc GetAllUsers (GetAllUsersRequest) returns (GetAllUsersResponse) {
     option (google.api.http) = {
       get: "/users"
     };
@@ -50,6 +49,8 @@ message User {
 }
 
 // Request message
+message GetAllUsersRequest {}
+
 message GetUserByIDRequest {
   uint64 id = 1;
 }

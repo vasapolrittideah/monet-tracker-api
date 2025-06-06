@@ -33,8 +33,8 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	UserRepository := repository.NewUserRepository(app.DB)
-	userService := usecase.NewUserUsecase(UserRepository, app.Config)
+	userRepository := repository.NewUserRepository(app.DB)
+	userService := usecase.NewUserUsecase(userRepository, app.Config)
 	controller.NewUserController(grpcServer, userService, app.Config)
 
 	go func() {

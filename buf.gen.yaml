@@ -1,0 +1,23 @@
+version: v2
+plugins:
+  - remote: buf.build/protocolbuffers/go
+    out: protogen
+    opt:
+      - paths=source_relative
+
+  - remote: buf.build/grpc/go:v1.5.1
+    out: protogen
+    opt:
+      - paths=source_relative
+
+  - remote: buf.build/grpc-ecosystem/gateway:v2.26.3
+    out: protogen
+    opt:
+      - logtostderr=true
+      - paths=source_relative
+inputs:
+  - directory: protobuf
+managed:
+  enabled: true
+  disable:
+    - module: buf.build/googleapis/googleapis
