@@ -1,18 +1,16 @@
 package passwordutil
 
 import (
-	"fmt"
-
 	"github.com/matthewhartstonge/argon2"
-	"github.com/vasapolrittideah/money-tracker-api/shared/constants/errorcode"
-	"github.com/vasapolrittideah/money-tracker-api/shared/model/apperror"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
-func HashPassword(password string) (string, *apperror.Error) {
+func HashPassword(password string) (string, error) {
 	argon := argon2.DefaultConfig()
 	encoded, err := argon.HashEncoded([]byte(password))
 	if err != nil {
-		return "", apperror.New(errorcode.Internal, fmt.Errorf("unable to hash password: %v", err.Error()))
+		return "", status.Errorf(codes.Internal, "unable to hash password: %v", err.Error())
 	}
 
 	return string(encoded), nil
