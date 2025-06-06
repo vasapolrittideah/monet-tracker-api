@@ -48,11 +48,13 @@ func Init() {
 
 func getLang(ctx context.Context) string {
 	if md, ok := metadata.FromIncomingContext(ctx); ok {
-		if langs := md.Get("Accept-Language"); len(langs) > 0 {
-			return strings.Split(langs[0], ",")[0]
+		keys := []string{"accept-language", "grpcgateway-accept-language"}
+		for _, key := range keys {
+			if langs := md.Get(key); len(langs) > 0 {
+				return strings.Split(langs[0], ",")[0]
+			}
 		}
 	}
-
 	return "en"
 }
 
