@@ -40,3 +40,36 @@ type UserUsecase interface {
 	UpdateUser(id uint64, user *User) (*User, error)
 	DeleteUser(id uint64) (*User, error)
 }
+
+// validate input body
+
+type CreateUserInput struct {
+	FullName           string `validate:"required"`
+	Email              string `validate:"required,email"`
+	Verified           bool
+	HashedPassword     string `validate:"required"`
+	HashedRefreshToken string
+}
+
+func (i *CreateUserInput) Populate(req *proto.CreateUserRequest) {
+	i.FullName = req.FullName
+	i.Email = req.Email
+	i.HashedPassword = req.HashedPassword
+}
+
+type UpdateUserInput struct {
+	ID                 uint64 `validate:"required"`
+	FullName           string
+	Email              string `validate:"email"`
+	Verified           bool
+	HashedPassword     string
+	HashedRefreshToken string
+}
+
+func (i *UpdateUserInput) Populate(req *proto.UpdateUserRequest) {
+	i.ID = req.Id
+	i.FullName = req.FullName
+	i.Email = req.Email
+	i.HashedPassword = req.HashedPassword
+	i.HashedRefreshToken = req.HashedRefreshToken
+}

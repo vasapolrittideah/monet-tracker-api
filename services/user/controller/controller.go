@@ -7,6 +7,7 @@ import (
 	proto "github.com/vasapolrittideah/money-tracker-api/protogen"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
+	"github.com/vasapolrittideah/money-tracker-api/shared/validator"
 	"google.golang.org/grpc"
 )
 
@@ -67,6 +68,12 @@ func (c *userController) CreateUser(
 	ctx context.Context,
 	req *proto.CreateUserRequest,
 ) (*proto.CreateUserResponse, error) {
+	input := new(domain.CreateUserInput)
+	input.Populate(req)
+	if err := validator.ValidateInput(ctx, input); err != nil {
+		return nil, err
+	}
+
 	user := &domain.User{
 		FullName:           req.FullName,
 		Email:              req.Email,
@@ -87,6 +94,12 @@ func (c *userController) UpdateUser(
 	ctx context.Context,
 	req *proto.UpdateUserRequest,
 ) (*proto.UpdateUserResponse, error) {
+	input := new(domain.UpdateUserInput)
+	input.Populate(req)
+	if err := validator.ValidateInput(ctx, input); err != nil {
+		return nil, err
+	}
+
 	user := &domain.User{
 		FullName:           req.FullName,
 		Email:              req.Email,
