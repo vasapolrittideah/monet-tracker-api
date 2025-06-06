@@ -6,7 +6,7 @@ import (
 	"github.com/caarlos0/env/v11"
 )
 
-type JwtConfig struct {
+type JWTConfig struct {
 	AccessTokenSecretKey  string        `env:"ACCESS_TOKEN_SECRET_KEY"`
 	AccessTokenExpiresIn  time.Duration `env:"ACCESS_TOKEN_EXPIRES_IN"`
 	RefreshTokenSecretKey string        `env:"REFRESH_TOKEN_SECRET_KEY"`
@@ -22,21 +22,22 @@ type DatabaseConfig struct {
 }
 
 type ServerConfig struct {
-	UserServiceHttpPort           string `env:"USER_SERVICE_HTTP_PORT"`
-	UserServiceGrpcPort           string `env:"USER_SERVICE_GRPC_PORT"`
-	UserServiceGrpcConnectionHost string `env:"USER_SERVICE_GRPC_CONNECTION_HOST"`
-	AuthServiceHttpPort           string `env:"AUTH_SERVICE_HTTP_PORT"`
+	GatewayPort     string `env:"GATEWAY_PORT"`
+	UserServiceHost string `env:"USER_SERVICE_HOST"`
+	UserServicePort string `env:"USER_SERVICE_PORT"`
+	AuthServiceHost string `env:"AUTH_SERVICE_HOST"`
+	AuthServicePort string `env:"AUTH_SERVICE_PORT"`
 }
 
 type OAuthGoogleConfig struct {
-	ClientId     string `env:"OAUTH_GOOGLE_CLIENT_ID"`
+	ClientID     string `env:"OAUTH_GOOGLE_CLIENT_ID"`
 	ClientSecret string `env:"OAUTH_GOOGLE_CLIENT_SECRET"`
-	RedirectUrl  string `env:"OAUTH_GOOGLE_REDIRECT_URL"`
+	RedirectURL  string `env:"OAUTH_GOOGLE_REDIRECT_URL"`
 }
 
 type Config struct {
 	Environment string `env:"ENVIRONMENT"`
-	Jwt         JwtConfig
+	JWT         JWTConfig
 	Server      ServerConfig
 	Database    DatabaseConfig
 	OAuthGoogle OAuthGoogleConfig
