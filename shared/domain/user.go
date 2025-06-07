@@ -7,11 +7,11 @@ import (
 
 type User struct {
 	gorm.Model
-	FullName           string `gorm:"not null;type:varchar(100)"`
-	Email              string `gorm:"not null;uniqueIndex"`
-	Verified           bool   `gorm:"not null;default:false"`
-	HashedPassword     string
-	HashedRefreshToken string
+	FullName     string `gorm:"not null;type:varchar(100)"`
+	Email        string `gorm:"not null;uniqueIndex"`
+	Verified     bool   `gorm:"not null;default:false"`
+	Password     string
+	RefreshToken string
 }
 
 func (u *User) ToProto() *userv1.User {

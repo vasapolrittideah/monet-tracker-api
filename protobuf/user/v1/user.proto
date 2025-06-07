@@ -4,6 +4,7 @@ package user.v1;
 
 option go_package = "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1;userv1";
 
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 
 service UserService {
@@ -60,20 +61,34 @@ message GetUserByEmailRequest {
 }
 
 message CreateUserRequest {
-  string full_name = 1;
-  string email = 2;
-  bool verified = 3;
-  string hashed_password = 4;
-  string hashed_refresh_token = 5;
+  string full_name = 1 [
+    (buf.validate.field).required = true
+  ];
+  string email = 2 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.email = true
+  ];
+  string password = 3 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.min_len = 6
+  ];
+  bool verified = 4;
+  string refresh_token = 5;
 }
 
 message UpdateUserRequest {
-  uint64 id = 1;
+  uint64 id = 1 [
+    (buf.validate.field).required = true
+  ];
   string full_name = 2;
-  string email = 3;
-  bool verified = 4;
-  string hashed_password = 5;
-  string hashed_refresh_token = 6;
+  string email = 3 [
+    (buf.validate.field).string.email = true
+  ];
+  string password = 4 [
+    (buf.validate.field).string.min_len = 6
+  ];
+  bool verified = 5;
+  string refresh_token = 6;
 }
 
 message DeleteUserRequest {

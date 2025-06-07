@@ -7,7 +7,6 @@ import (
 	userv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
-	"google.golang.org/grpc"
 )
 
 type userController struct {
@@ -16,13 +15,11 @@ type userController struct {
 	userv1.UnimplementedUserServiceServer
 }
 
-func NewUserController(grpc *grpc.Server, usecase domain.UserUsecase, config *config.Config) {
-	handler := &userController{
+func NewUserController(usecase domain.UserUsecase, config *config.Config) *userController {
+	return &userController{
 		usecase: usecase,
 		config:  config,
 	}
-
-	userv1.RegisterUserServiceServer(grpc, handler)
 }
 
 func (c *userController) GetAllUsers(
@@ -71,11 +68,11 @@ func (c *userController) CreateUser(
 	req *userv1.CreateUserRequest,
 ) (*userv1.CreateUserResponse, error) {
 	user := &domain.User{
-		FullName:           req.FullName,
-		Email:              req.Email,
-		Verified:           req.Verified,
-		HashedPassword:     req.HashedPassword,
-		HashedRefreshToken: req.HashedRefreshToken,
+		FullName:     req.FullName,
+		Email:        req.Email,
+		Verified:     req.Verified,
+		Password:     req.Password,
+		RefreshToken: req.RefreshToken,
 	}
 
 	createdUser, err := c.usecase.CreateUser(user)
@@ -91,11 +88,11 @@ func (c *userController) UpdateUser(
 	req *userv1.UpdateUserRequest,
 ) (*userv1.UpdateUserResponse, error) {
 	user := &domain.User{
-		FullName:           req.FullName,
-		Email:              req.Email,
-		Verified:           req.Verified,
-		HashedPassword:     req.HashedPassword,
-		HashedRefreshToken: req.HashedRefreshToken,
+		FullName:     req.FullName,
+		Email:        req.Email,
+		Verified:     req.Verified,
+		Password:     req.Password,
+		RefreshToken: req.RefreshToken,
 	}
 
 	updatedUser, err := c.usecase.UpdateUser(req.Id, user)

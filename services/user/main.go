@@ -1,56 +1,84 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net"
 	"os"
 	"os/signal"
-	"syscall"
 
+	"buf.build/go/protovalidate"
 	"github.com/charmbracelet/log"
+	protovalidate_middleware "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/protovalidate"
+	userv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/controller"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/repository"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/usecase"
 	"github.com/vasapolrittideah/money-tracker-api/shared/bootstrap"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
+	defer cancel()
+
+	if err := run(ctx); err != nil && !errors.Is(err, context.Canceled) {
+		log.Errorf("failed to run user service: %v", err)
+		return
+	}
+
+	log.Info("👋 user service stopped gracefully")
+}
+
+func run(ctx context.Context) error {
 	app := bootstrap.NewApp()
 	defer app.Close()
 
-	addr := fmt.Sprintf(":%v", app.Config.Server.UserServicePort)
-	lis, err := net.Listen("tcp", addr)
+	validator, err := protovalidate.New()
 	if err != nil {
-		log.Errorf("failed to listen on %s: %v", addr, err)
-		return
+		return fmt.Errorf("failed to create protovalidate validator: %w", err)
 	}
-	defer func() {
-		if err := lis.Close(); err != nil {
-			log.Errorf("failed to close listener: %v", err)
-		}
-	}()
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(protovalidate_middleware.UnaryServerInterceptor(validator)),
+	)
+
+	reflection.Register(grpcServer)
 
 	userRepository := repository.NewUserRepository(app.DB)
-	userService := usecase.NewUserUsecase(userRepository, app.Config)
-	controller.NewUserController(grpcServer, userService, app.Config)
+	userUsecase := usecase.NewUserUsecase(userRepository, app.Config)
+	userController := controller.NewUserController(userUsecase, app.Config)
+	userv1.RegisterUserServiceServer(grpcServer, userController)
 
-	go func() {
-		log.Infof("🚀 user service started on port %v", app.Config.Server.UserServicePort)
-		if err := grpcServer.Serve(lis); err != nil {
-			log.Fatal("failed to serve grpc server: %v", err)
+	errorGroup, ctx := errgroup.WithContext(ctx)
+
+	errorGroup.Go(func() error {
+		addr := fmt.Sprintf(":%v", app.Config.Server.UserServicePort)
+		lis, err := net.Listen("tcp", addr)
+		if err != nil {
+			return fmt.Errorf("failed to listen on %s: %w", addr, err)
 		}
-	}()
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		log.Infof("🚀 user service listening on %s", addr)
 
-	<-quit
-	log.Info("👋 shutdown signal received, stopping server...")
+		if err := grpcServer.Serve(lis); err != nil {
+			return fmt.Errorf("failed to serve grpc server: %v", err)
+		}
 
-	grpcServer.GracefulStop()
+		return nil
+	})
 
-	log.Info("👋 server stopped, see you later")
+	errorGroup.Go(func() error {
+		<-ctx.Done()
+
+		log.Info("🧹 shutting down user service gracefully...")
+		grpcServer.GracefulStop()
+
+		return ctx.Err()
+	})
+
+	return errorGroup.Wait()
 }
