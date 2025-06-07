@@ -9,6 +9,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	userv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	"github.com/vasapolrittideah/money-tracker-api/shared/bootstrap"
+	"github.com/vasapolrittideah/money-tracker-api/shared/validation"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -28,6 +29,7 @@ func main() {
 				EmitDefaultValues: true,
 			},
 		}),
+		runtime.WithErrorHandler(validation.ErrorHandler),
 	}
 
 	mux := runtime.NewServeMux(ropts...)
