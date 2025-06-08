@@ -23,11 +23,9 @@ type DatabaseConfig struct {
 }
 
 type ServerConfig struct {
-	GatewayPort     string `env:"GATEWAY_PORT"`
-	UserServiceHost string `env:"USER_SERVICE_HOST"`
-	UserServicePort string `env:"USER_SERVICE_PORT"`
-	AuthServiceHost string `env:"AUTH_SERVICE_HOST"`
-	AuthServicePort string `env:"AUTH_SERVICE_PORT"`
+	UserServiceHost     string `env:"USER_SERVICE_HOST"`
+	UserServiceHTTPPort string `env:"USER_SERVICE_HTTP_PORT"`
+	UserServiceGRPCPort string `env:"USER_SERVICE_GRPC_PORT"`
 }
 
 type OAuthGoogleConfig struct {

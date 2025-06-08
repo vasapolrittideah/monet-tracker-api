@@ -53,7 +53,7 @@ func (r *userRepository) UpdateUser(id uint64, updated *domain.User) (*domain.Us
 	if err := r.db.First(&user, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
-	if err := r.db.Model(&user).Updates(updated).Error; err != nil {
+	if err := r.db.Model(&user).Where("id = ?", id).Updates(updated).Error; err != nil {
 		return nil, err
 	}
 	if err := r.db.First(&user, "id = ?", id).Error; err != nil {
