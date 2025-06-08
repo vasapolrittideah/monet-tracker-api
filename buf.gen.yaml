@@ -10,17 +10,5 @@ plugins:
     opt:
       - paths=source_relative
 
-  - remote: buf.build/grpc-ecosystem/gateway:v2.26.3
-    out: protogen
-    opt:
-      - logtostderr=true
-      - paths=source_relative
 inputs:
   - directory: protobuf
-managed:
-  enabled: true
-  # Don't modify any file option or field option for protovalidate. Without
-  # this, generated Go will fail to compile.
-  disable:
-    - file_option: go_package
-      module: buf.build/bufbuild/protovalidate
