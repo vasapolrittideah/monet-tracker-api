@@ -21,6 +21,8 @@ import (
 	"github.com/vasapolrittideah/money-tracker-api/shared/consul"
 	"github.com/vasapolrittideah/money-tracker-api/shared/middleware"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func main() {
@@ -71,6 +73,10 @@ func startGRPCServer(ctx context.Context, wg *sync.WaitGroup, app *bootstrap.App
 
 	grpcServer := grpc.NewServer()
 	userpbv1.RegisterUserServiceServer(grpcServer, userController)
+
+	healthServer := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
+	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
 
 	go func() {
 		<-ctx.Done()
@@ -128,7 +134,7 @@ func registerService(ctx context.Context, app *bootstrap.Application) error {
 
 	serviceID := "user-service-1"
 	serviceName := "user-service"
-	serviceAddress := app.Config.Server.ConsulHost
+	serviceAddress := app.Config.Server.UserServiceHost
 	servicePort, _ := strconv.Atoi(app.Config.Server.UserServiceGRPCPort)
 
 	err = consulClient.RegisterService(

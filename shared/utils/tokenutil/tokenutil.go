@@ -4,15 +4,14 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func GenerateToken(ttl time.Duration, secretKey string, userId uuid.UUID) (string, error) {
+func GenerateToken(ttl time.Duration, secretKey string, userID uint64) (string, error) {
 	now := time.Now()
 	claims := jwt.MapClaims{
-		"sub": userId.String(),
+		"sub": userID,
 		"exp": now.Add(ttl).Unix(),
 		"iat": now.Unix(),
 	}
