@@ -32,8 +32,8 @@ func main() {
 	app := bootstrap.NewApp()
 	defer app.Close()
 
-	if err := registerService(ctx, &app); err != nil {
-		log.Errorf("failed to register service: %v", err)
+	if err := registerUserService(ctx, &app); err != nil {
+		log.Errorf("failed to register user service: %v", err)
 		return
 	}
 
@@ -125,7 +125,7 @@ func startHTTPServer(ctx context.Context, wg *sync.WaitGroup, app *bootstrap.App
 	return nil
 }
 
-func registerService(ctx context.Context, app *bootstrap.Application) error {
+func registerUserService(ctx context.Context, app *bootstrap.Application) error {
 	address := fmt.Sprintf("%v:%v", app.Config.Server.ConsulHost, app.Config.Server.ConsulPort)
 	consulClient, err := consul.NewConsulClient(address)
 	if err != nil {

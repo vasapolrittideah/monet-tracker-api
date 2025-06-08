@@ -15,6 +15,7 @@ import (
 	"github.com/vasapolrittideah/money-tracker-api/shared/bootstrap"
 	"github.com/vasapolrittideah/money-tracker-api/shared/consul"
 	"github.com/vasapolrittideah/money-tracker-api/shared/middleware"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -44,17 +45,9 @@ func startHTTPServer(ctx context.Context, wg *sync.WaitGroup, app *bootstrap.App
 	a := fiber.New()
 	middleware.RegisterHTTPMiddleware(a)
 
-	serviceNames := []string{"user-service"}
-
-	address := fmt.Sprintf("%v:%v", app.Config.Server.ConsulHost, app.Config.Server.ConsulPort)
-	consulClient, err := consul.NewConsulClient(address)
+	conns, err := createAuthGRPCClients(app)
 	if err != nil {
-		return fmt.Errorf("failed to create consul client: %v", err)
-	}
-
-	conns, err := consulClient.CreateGRPCClients(serviceNames)
-	if err != nil {
-		return fmt.Errorf("failed to create grpc clients: %v", err)
+		return fmt.Errorf("failed to create auth grpc clients: %v", err)
 	}
 
 	userClient := userpbv1.NewUserServiceClient(conns["user-service"])
@@ -79,4 +72,21 @@ func startHTTPServer(ctx context.Context, wg *sync.WaitGroup, app *bootstrap.App
 	}
 
 	return nil
+}
+
+func createAuthGRPCClients(app *bootstrap.Application) (map[string]*grpc.ClientConn, error) {
+	serviceNames := []string{"user-service"}
+
+	address := fmt.Sprintf("%v:%v", app.Config.Server.ConsulHost, app.Config.Server.ConsulPort)
+	consulClient, err := consul.NewConsulClient(address)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create consul client: %v", err)
+	}
+
+	conns, err := consulClient.CreateGRPCClients(serviceNames)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create grpc clients: %v", err)
+	}
+
+	return conns, nil
 }
