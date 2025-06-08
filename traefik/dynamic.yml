@@ -1,0 +1,13 @@
+http:
+  routers:
+    user:
+      rule: "Host(`go.localhost`)"
+      service: user-service
+      entryPoints:
+        - web
+
+  services:
+    user-service:
+      loadBalancer:
+        servers:
+          - url: "http://user:8000"
