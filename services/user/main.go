@@ -2,122 +2,157 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net"
 	"os"
 	"os/signal"
+	"strconv"
+	"sync"
+	"syscall"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
-	userv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
+	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/controller"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/repository"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/usecase"
 	"github.com/vasapolrittideah/money-tracker-api/shared/bootstrap"
+	"github.com/vasapolrittideah/money-tracker-api/shared/consul"
 	"github.com/vasapolrittideah/money-tracker-api/shared/middleware"
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 func main() {
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
 	app := bootstrap.NewApp()
 	defer app.Close()
 
-	group, ctx := errgroup.WithContext(ctx)
-
-	group.Go(grpcServerRunner(ctx, &app))
-	group.Go(httpServerRunner(ctx, &app))
-
-	if err := group.Wait(); err != nil && !errors.Is(err, context.Canceled) {
-		log.Errorf("failed to run user service: %v", err)
-	} else {
-		log.Info("👋 user service stopped gracefully")
+	if err := registerService(ctx, &app); err != nil {
+		log.Errorf("failed to register service: %v", err)
+		return
 	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		if err := startHTTPServer(ctx, &wg, &app); err != nil {
+			log.Errorf("failed to start http server: %v", err)
+			cancel()
+		}
+	}()
+
+	go func() {
+		if err := startGRPCServer(ctx, &wg, &app); err != nil {
+			log.Errorf("failed to start grpc server: %v", err)
+			cancel()
+		}
+	}()
+
+	wg.Wait()
+	log.Info("👋 user service stopped gracefully")
 }
 
-func grpcServerRunner(ctx context.Context, app *bootstrap.Application) func() error {
-	return func() error {
-		grpcServer := grpc.NewServer()
-		reflection.Register(grpcServer)
+func startGRPCServer(ctx context.Context, wg *sync.WaitGroup, app *bootstrap.Application) error {
+	defer wg.Done()
 
-		userRepository := repository.NewUserRepository(app.DB)
-		userUsecase := usecase.NewUserUsecase(userRepository, app.Config)
-		userController := controller.NewUserGRPCController(userUsecase, app.Config)
-		userv1.RegisterUserServiceServer(grpcServer, userController)
-
-		group, ctx := errgroup.WithContext(ctx)
-
-		group.Go(func() error {
-			addr := fmt.Sprintf(":%v", app.Config.Server.UserServiceGRPCPort)
-			lis, err := net.Listen("tcp", addr)
-			if err != nil {
-				return fmt.Errorf("failed to listen on %s: %w", addr, err)
-			}
-
-			log.Infof("🚀 grpc server started on %s", addr)
-
-			if err := grpcServer.Serve(lis); err != nil {
-				return fmt.Errorf("failed to serve grpc server: %v", err)
-			}
-
-			return nil
-		})
-
-		group.Go(func() error {
-			<-ctx.Done()
-
-			log.Info("🧹 shutting down user service gracefully...")
-			grpcServer.GracefulStop()
-
-			return ctx.Err()
-		})
-
-		return group.Wait()
+	addr := fmt.Sprintf(":%v", app.Config.Server.UserServiceGRPCPort)
+	lis, err := net.Listen("tcp", addr)
+	if err != nil {
+		return fmt.Errorf("failed to listen on %s: %v", addr, err)
 	}
+
+	userRepository := repository.NewUserRepository(app.DB)
+	userUsecase := usecase.NewUserUsecase(userRepository, app.Config)
+	userController := controller.NewUserGRPCController(userUsecase, app.Config)
+
+	grpcServer := grpc.NewServer()
+	userpbv1.RegisterUserServiceServer(grpcServer, userController)
+
+	go func() {
+		<-ctx.Done()
+		log.Info("🧹 shutting down grpc server...")
+		grpcServer.GracefulStop()
+	}()
+
+	log.Infof("🚀 grpc server started on %s", addr)
+
+	if err := grpcServer.Serve(lis); err != nil {
+		return fmt.Errorf("failed to serve grpc server: %v", err)
+	}
+
+	return nil
 }
 
-func httpServerRunner(ctx context.Context, app *bootstrap.Application) func() error {
-	return func() error {
-		a := fiber.New()
-		middleware.RegisterHTTPMiddleware(a)
+func startHTTPServer(ctx context.Context, wg *sync.WaitGroup, app *bootstrap.Application) error {
+	defer wg.Done()
 
-		router := a.Group("/api/v1")
+	a := fiber.New()
+	middleware.RegisterHTTPMiddleware(a)
 
-		userRepository := repository.NewUserRepository(app.DB)
-		userUsecase := usecase.NewUserUsecase(userRepository, app.Config)
-		userController := controller.NewUserHTTPController(router, userUsecase, app.Config)
-		userController.RegisterRoutes()
+	router := a.Group("/api/v1")
 
-		group, ctx := errgroup.WithContext(ctx)
+	userRepository := repository.NewUserRepository(app.DB)
+	userUsecase := usecase.NewUserUsecase(userRepository, app.Config)
+	userController := controller.NewUserHTTPController(router, userUsecase, app.Config)
+	userController.RegisterRoutes()
 
-		group.Go(func() error {
-			addr := fmt.Sprintf(":%v", app.Config.Server.UserServiceHTTPPort)
+	addr := fmt.Sprintf(":%v", app.Config.Server.UserServiceHTTPPort)
 
-			log.Infof("🚀 http server started on %s", addr)
+	go func() {
+		<-ctx.Done()
+		log.Info("🧹 shutting down http server...")
+		if err := a.Shutdown(); err != nil {
+			log.Errorf("failed to shutdown http server: %v", err)
+		}
+	}()
 
-			if err := a.Listen(addr); err != nil {
-				return fmt.Errorf("failed to listen on %s: %w", addr, err)
-			}
+	log.Infof("🚀 http server started on %s", addr)
 
-			return nil
-		})
-
-		group.Go(func() error {
-			<-ctx.Done()
-
-			log.Info("🧹 shutting down user service gracefully...")
-			if err := a.Shutdown(); err != nil {
-				return fmt.Errorf("failed to shutdown http server: %w", err)
-			}
-
-			return ctx.Err()
-		})
-
-		return group.Wait()
+	if err := a.Listen(addr); err != nil {
+		return fmt.Errorf("failed to listen on %s: %v", addr, err)
 	}
+
+	return nil
+}
+
+func registerService(ctx context.Context, app *bootstrap.Application) error {
+	address := fmt.Sprintf("%v:%v", app.Config.Server.ConsulHost, app.Config.Server.ConsulPort)
+	consulClient, err := consul.NewConsulClient(address)
+	if err != nil {
+		return err
+	}
+
+	serviceID := "user-service-1"
+	serviceName := "user-service"
+	serviceAddress := app.Config.Server.ConsulHost
+	servicePort, _ := strconv.Atoi(app.Config.Server.UserServiceGRPCPort)
+
+	err = consulClient.RegisterService(
+		serviceID,
+		serviceName,
+		serviceAddress,
+		servicePort,
+		10*time.Second,
+		1*time.Minute,
+	)
+	if err != nil {
+		return err
+	}
+
+	log.Info("🎉 user service registered successfully")
+
+	go func() {
+		<-ctx.Done()
+		if err := consulClient.DeregisterService(serviceID); err != nil {
+			log.Error(err)
+		} else {
+			log.Info("user service deregistered successfully")
+		}
+	}()
+
+	return nil
 }

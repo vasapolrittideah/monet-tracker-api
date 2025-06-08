@@ -23,9 +23,13 @@ type DatabaseConfig struct {
 }
 
 type ServerConfig struct {
+	ConsulHost          string `env:"CONSUL_HOST"`
+	ConsulPort          string `env:"CONSUL_PORT"`
 	UserServiceHost     string `env:"USER_SERVICE_HOST"`
 	UserServiceHTTPPort string `env:"USER_SERVICE_HTTP_PORT"`
 	UserServiceGRPCPort string `env:"USER_SERVICE_GRPC_PORT"`
+	AuthServiceHost     string `env:"AUTH_SERVICE_HOST"`
+	AuthServiceHTTPPort string `env:"AUTH_SERVICE_HTTP_PORT"`
 }
 
 type OAuthGoogleConfig struct {
