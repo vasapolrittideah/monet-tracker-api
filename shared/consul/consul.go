@@ -26,7 +26,7 @@ func NewConsulClient(address string) (*ConsulClient, error) {
 	return &ConsulClient{client: client}, nil
 }
 
-func (c *ConsulClient) CreateGRPCClients(serviceNames []string) (map[string]*grpc.ClientConn, error) {
+func (c *ConsulClient) CreateGRPCServiceConnections(serviceNames []string) (map[string]*grpc.ClientConn, error) {
 	conns := make(map[string]*grpc.ClientConn)
 
 	for _, name := range serviceNames {
@@ -47,7 +47,7 @@ func (c *ConsulClient) CreateGRPCClients(serviceNames []string) (map[string]*grp
 	return conns, nil
 }
 
-func (c *ConsulClient) RegisterService(
+func (c *ConsulClient) RegisterGRPCService(
 	serviceID,
 	serviceName,
 	serviceAddress string,

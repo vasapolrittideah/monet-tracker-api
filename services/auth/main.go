@@ -45,7 +45,7 @@ func startHTTPServer(ctx context.Context, wg *sync.WaitGroup, app *bootstrap.App
 	a := fiber.New()
 	middleware.RegisterHTTPMiddleware(a)
 
-	conns, err := createAuthGRPCClients(app)
+	conns, err := createAuthGRPCServiceConnections(app)
 	if err != nil {
 		return fmt.Errorf("failed to create auth grpc clients: %v", err)
 	}
@@ -74,7 +74,7 @@ func startHTTPServer(ctx context.Context, wg *sync.WaitGroup, app *bootstrap.App
 	return nil
 }
 
-func createAuthGRPCClients(app *bootstrap.Application) (map[string]*grpc.ClientConn, error) {
+func createAuthGRPCServiceConnections(app *bootstrap.Application) (map[string]*grpc.ClientConn, error) {
 	serviceNames := []string{"user-service"}
 
 	address := fmt.Sprintf("%v:%v", app.Config.Server.ConsulHost, app.Config.Server.ConsulPort)
@@ -83,7 +83,7 @@ func createAuthGRPCClients(app *bootstrap.Application) (map[string]*grpc.ClientC
 		return nil, fmt.Errorf("failed to create consul client: %v", err)
 	}
 
-	conns, err := consulClient.CreateGRPCClients(serviceNames)
+	conns, err := consulClient.CreateGRPCServiceConnections(serviceNames)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create grpc clients: %v", err)
 	}
