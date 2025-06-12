@@ -8,14 +8,14 @@ import (
 )
 
 type User struct {
-	ID           uint64    `json:"id"         gorm:"primarykey;type:uuid;autoIncrement"`
-	FullName     string    `json:"full_name"  gorm:"not null;type:varchar(100)"`
-	Email        string    `json:"email"      gorm:"not null;uniqueIndex"`
-	Verified     bool      `json:"verified"   gorm:"not null;default:false"`
+	ID           uint64    `json:"id"         gorm:"primarykey;type:uuid;autoIncrement" example:"1"                    extensions:"x-order=1"`
+	FullName     string    `json:"full_name"  gorm:"not null;type:varchar(100)"         example:"John Doe"             extensions:"x-order=2"`
+	Email        string    `json:"email"      gorm:"not null;uniqueIndex"               example:"john@example.com"     extensions:"x-order=3"`
+	Verified     bool      `json:"verified"   gorm:"not null;default:false"             example:"true"                 extensions:"x-order=4"`
 	Password     string    `json:"-"          gorm:"not null"`
 	RefreshToken string    `json:"-"`
-	CreatedAt    time.Time `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt    time.Time `json:"updated_at" gorm:"autoUpdateTime"`
+	CreatedAt    time.Time `json:"created_at" gorm:"autoCreateTime"                     example:"2022-01-01T00:00:00Z" extensions:"x-order=5"`
+	UpdatedAt    time.Time `json:"updated_at" gorm:"autoUpdateTime"                     example:"2022-01-01T00:00:00Z" extensions:"x-order=6"`
 }
 
 func (u *User) ToProto() *userv1.User {
@@ -41,15 +41,15 @@ func NewUserFromProto(user *userv1.User) *User {
 }
 
 type CreateUserRequest struct {
-	FullName string `json:"full_name" example:"John Doe"`
-	Email    string `json:"email"     example:"john@example.com"`
+	FullName string `json:"full_name" example:"John Doe"         extensions:"x-order=1"`
+	Email    string `json:"email"     example:"john@example.com" extensions:"x-order=2"`
 	Password string `json:"password"`
 }
 
 type UpdateUserRequest struct {
-	FullName *string `json:"full_name,omitempty" example:"John Doe"`
-	Email    *string `json:"email,omitempty"     example:"john@example.com"`
-	Verified *bool   `json:"verified,omitempty"  example:"true"`
+	FullName *string `json:"full_name,omitempty" example:"John Doe"         extensions:"x-order=1"`
+	Email    *string `json:"email,omitempty"     example:"john@example.com" extensions:"x-order=2"`
+	Verified *bool   `json:"verified,omitempty"  example:"true"             extensions:"x-order=3"`
 }
 
 type UserRepository interface {
