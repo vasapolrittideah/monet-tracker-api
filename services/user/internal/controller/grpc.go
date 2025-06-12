@@ -68,11 +68,9 @@ func (c *userGRPCController) CreateUser(
 	req *userpbv1.CreateUserRequest,
 ) (*userpbv1.CreateUserResponse, error) {
 	user := &domain.User{
-		FullName:     req.FullName,
-		Email:        req.Email,
-		Verified:     req.Verified,
-		Password:     req.Password,
-		RefreshToken: req.RefreshToken,
+		FullName: req.FullName,
+		Email:    req.Email,
+		Password: req.Password,
 	}
 
 	createdUser, err := c.usecase.CreateUser(user)

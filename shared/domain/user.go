@@ -9,7 +9,7 @@ import (
 
 type User struct {
 	ID           uint64    `json:"id"         gorm:"primarykey;type:uuid;autoIncrement"`
-	FullName     string    `json:"name"       gorm:"not null;type:varchar(100)"`
+	FullName     string    `json:"full_name"  gorm:"not null;type:varchar(100)"`
 	Email        string    `json:"email"      gorm:"not null;uniqueIndex"`
 	Verified     bool      `json:"verified"   gorm:"not null;default:false"`
 	Password     string    `json:"-"          gorm:"not null"`
@@ -38,6 +38,18 @@ func NewUserFromProto(user *userv1.User) *User {
 		CreatedAt: user.CreatedAt.AsTime(),
 		UpdatedAt: user.UpdatedAt.AsTime(),
 	}
+}
+
+type CreateUserRequest struct {
+	FullName string `json:"full_name" example:"John Doe"`
+	Email    string `json:"email"     example:"john@example.com"`
+	Password string `json:"password"`
+}
+
+type UpdateUserRequest struct {
+	FullName *string `json:"full_name,omitempty" example:"John Doe"`
+	Email    *string `json:"email,omitempty"     example:"john@example.com"`
+	Verified *bool   `json:"verified,omitempty"  example:"true"`
 }
 
 type UserRepository interface {

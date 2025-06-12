@@ -14,19 +14,19 @@ import (
 )
 
 type userHTTPController struct {
-	router  fiber.Router
 	usecase domain.UserUsecase
+	router  fiber.Router
 	config  *config.Config
 }
 
 func NewUserHTTPController(
-	router fiber.Router,
 	usecase domain.UserUsecase,
+	router fiber.Router,
 	config *config.Config,
 ) *userHTTPController {
 	return &userHTTPController{
-		router:  router,
 		usecase: usecase,
+		router:  router,
 		config:  config,
 	}
 }
@@ -42,6 +42,16 @@ func (c *userHTTPController) RegisterRoutes() {
 	router.Delete("/:id", c.DeleteUser)
 }
 
+// GetAllUsers godoc
+// @Summary Get all users
+// @Description get a list of all users
+// @Tags User
+// @Acceopt json
+// @Produce json
+// @Success 200 {array} domain.User "OK"
+// @Failure 404 {object} httperror.HTTPError "Not Found"
+// @Failure 500 {object} httperror.HTTPError "Internal Server Error"
+// @Router /users [get]
 func (c *userHTTPController) GetAllUsers(ctx *fiber.Ctx) error {
 	users, err := c.usecase.GetAllUsers()
 	if err != nil {
@@ -54,6 +64,18 @@ func (c *userHTTPController) GetAllUsers(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(users)
 }
 
+// GetUserByID godoc
+// @Summary Get user by id
+// @Description get a user by id
+// @Tags User
+// @Acceopt json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} domain.User "OK"
+// @Failure 400 {object} httperror.HTTPError "Bad Request"
+// @Failure 404 {object} httperror.HTTPError "Not Found"
+// @Failure 500 {object} httperror.HTTPError "Internal Server Error"
+// @Router /users/{id} [get]
 func (c *userHTTPController) GetUserByID(ctx *fiber.Ctx) error {
 	idParam := ctx.Params("id")
 
@@ -75,6 +97,18 @@ func (c *userHTTPController) GetUserByID(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(user)
 }
 
+// GetUserByEmail godoc
+// @Summary Get user by email
+// @Description get a user by email
+// @Tags User
+// @Acceopt json
+// @Produce json
+// @Param email path string true "User Email"
+// @Success 200 {object} domain.User "OK"
+// @Failure 400 {object} httperror.HTTPError "Bad Request"
+// @Failure 404 {object} httperror.HTTPError "Not Found"
+// @Failure 500 {object} httperror.HTTPError "Internal Server Error"
+// @Router /users/email/{email} [get]
 func (c *userHTTPController) GetUserByEmail(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
 
@@ -96,13 +130,32 @@ func (c *userHTTPController) GetUserByEmail(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(user)
 }
 
+// CreateUser godoc
+// @Summary Create user
+// @Description create a new user
+// @Tags User
+// @Acceopt json
+// @Produce json
+// @Param user body domain.CreateUserRequest true "User to create"
+// @Success 200 {object} domain.User "OK"
+// @Failure 400 {object} httperror.HTTPValidationError "Bad Request"
+// @Failure 409 {object} httperror.HTTPError "Conflict"
+// @Failure 500 {object} httperror.HTTPError "Internal Server Error"
+// @Router /users [post]
 func (c *userHTTPController) CreateUser(ctx *fiber.Ctx) error {
-	var user domain.User
-	if err := ctx.BodyParser(&user); err != nil {
+	var req domain.CreateUserRequest
+
+	if err := ctx.BodyParser(&req); err != nil {
 		st := status.Convert(err)
 		return ctx.Status(http.StatusBadGateway).JSON(
 			httperror.NewHTTPError(codes.InvalidArgument, st.Message()),
 		)
+	}
+
+	user := domain.User{
+		FullName: req.FullName,
+		Email:    req.Email,
+		Password: req.Password,
 	}
 
 	createdUser, err := c.usecase.CreateUser(&user)
@@ -116,6 +169,19 @@ func (c *userHTTPController) CreateUser(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(createdUser)
 }
 
+// UpdateUser godoc
+// @Summary Update user
+// @Description update a user
+// @Tags User
+// @Acceopt json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param user body domain.UpdateUserRequest true "User to update"
+// @Success 200 {object} domain.User "OK"
+// @Failure 400 {object} httperror.HTTPValidationError "Bad Request"
+// @Failure 404 {object} httperror.HTTPError "Not Found"
+// @Failure 500 {object} httperror.HTTPError "Internal Server Error"
+// @Router /users/{id} [put]
 func (c *userHTTPController) UpdateUser(ctx *fiber.Ctx) error {
 	idParam := ctx.Params("id")
 
@@ -145,6 +211,18 @@ func (c *userHTTPController) UpdateUser(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(updatedUser)
 }
 
+// DeleteUser godoc
+// @Summary Delete user
+// @Description delete a user
+// @Tags User
+// @Acceopt json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} domain.User "OK"
+// @Failure 400 {object} httperror.HTTPError "Bad Request"
+// @Failure 404 {object} httperror.HTTPError "Not Found"
+// @Failure 500 {object} httperror.HTTPError "Internal Server Error"
+// @Router /users/{id} [delete]
 func (c *userHTTPController) DeleteUser(ctx *fiber.Ctx) error {
 	idParam := ctx.Params("id")
 

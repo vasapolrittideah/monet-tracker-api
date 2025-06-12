@@ -6,6 +6,7 @@ import (
 
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
+	"github.com/vasapolrittideah/money-tracker-api/shared/utils/hashutil"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -59,6 +60,13 @@ func (u *userUsecase) GetUserByEmail(email string) (*domain.User, error) {
 }
 
 func (u *userUsecase) CreateUser(user *domain.User) (*domain.User, error) {
+	hashedPassword, err := hashutil.Hash(user.Password)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to hash password: %v", err)
+	}
+
+	user.Password = hashedPassword
+
 	createdUser, err := u.repository.CreateUser(user)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key") {

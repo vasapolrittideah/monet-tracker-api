@@ -7,7 +7,12 @@ import (
 )
 
 type HTTPError struct {
-	Code    codes.Code        `json:"code"`
+	Code    codes.Code `json:"code"    swaggertype:"integer"`
+	Message string     `json:"message"`
+}
+
+type HTTPValidationError struct {
+	Code    codes.Code        `json:"code"    swaggertype:"integer"`
 	Message string            `json:"message"`
 	Details []ValidationError `json:"details"`
 }
@@ -43,6 +48,7 @@ func HTTPStatusFromCode(code codes.Code) int {
 	if status, ok := grpcToHTTPStatusMap[code]; ok {
 		return status
 	}
+
 	return http.StatusInternalServerError
 }
 
@@ -53,8 +59,8 @@ func NewHTTPError(code codes.Code, message string) HTTPError {
 	}
 }
 
-func NewValidationError(details []ValidationError) HTTPError {
-	return HTTPError{
+func NewValidationError(details []ValidationError) HTTPValidationError {
+	return HTTPValidationError{
 		Code:    http.StatusBadRequest,
 		Message: "validation failed",
 		Details: details,

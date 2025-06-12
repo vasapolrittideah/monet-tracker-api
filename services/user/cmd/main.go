@@ -13,7 +13,9 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
+	"github.com/vasapolrittideah/money-tracker-api/services/user/docs"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/internal/controller"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/internal/repository"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/internal/usecase"
@@ -25,6 +27,15 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
+// @title Money Tracker API
+// @version 1.0
+// @description	This is a user service for Money Tracker API
+// @contact.name Vasapol Rittideah
+// @contact.email	vasapol.rittideah@outlook.com
+// @license.name MIT
+// @license.url https://github.com/vasapolrittideah/money-tracker-api/blob/main/LICENSE
+// @host moneytracker.local
+// @BasePath /api/v1
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
@@ -99,11 +110,17 @@ func startHTTPServer(ctx context.Context, wg *sync.WaitGroup, app *bootstrap.App
 	a := fiber.New()
 	middleware.RegisterHTTPMiddleware(a)
 
+	a.Get("/swagger/*", swagger.New(swagger.Config{URL: "/doc.json"}))
+	a.Get("/doc.json", func(ctx *fiber.Ctx) error {
+		ctx.Set("Content-Type", "application/json")
+		return ctx.Status(200).SendString(docs.SwaggerInfo.ReadDoc())
+	})
+
 	router := a.Group("/api/v1")
 
 	userRepository := repository.NewUserRepository(app.DB)
 	userUsecase := usecase.NewUserUsecase(userRepository, app.Config)
-	userController := controller.NewUserHTTPController(router, userUsecase, app.Config)
+	userController := controller.NewUserHTTPController(userUsecase, router, app.Config)
 	userController.RegisterRoutes()
 
 	addr := fmt.Sprintf(":%v", app.Config.Server.UserServiceHTTPPort)

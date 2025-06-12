@@ -29,15 +29,10 @@ func (u *authUsercase) SignUp(req *domain.SignUpRequest) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	hashedPassword, err := hashutil.Hash(req.Password)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "unable to hash password: %v", err)
-	}
-
 	newUser := domain.User{
 		FullName: req.FullName,
 		Email:    req.Email,
-		Password: hashedPassword,
+		Password: req.Password,
 	}
 
 	res, err := u.userClient.CreateUser(ctx, &userpbv1.CreateUserRequest{
