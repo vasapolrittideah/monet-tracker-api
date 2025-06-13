@@ -39,7 +39,7 @@ func (c *authHTTPController) RegisterRoutes() {
 // @Acceopt json
 // @Produce json
 // @Param user body domain.SignUpRequest true "User to register"
-// @Success 200 {array} domain.User "OK"
+// @Success 200 {object} domain.User "OK"
 // @Failure 400 {object} httperror.HTTPValidationError "Bad Request"
 // @Failure 409 {object} httperror.HTTPError "Conflict"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
@@ -71,7 +71,7 @@ func (c *authHTTPController) SignUp(ctx *fiber.Ctx) error {
 // @Acceopt json
 // @Produce json
 // @Param user body domain.SignInRequest true "User to sign in"
-// @Success 200 {array} domain.Token "OK"
+// @Success 200 {object} domain.Token "OK"
 // @Failure 400 {object} httperror.HTTPValidationError "Bad Request"
 // @Failure 401 {object} httperror.HTTPError "Unauthorized"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"

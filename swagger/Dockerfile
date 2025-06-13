@@ -8,6 +8,6 @@ COPY ./ ./
 
 RUN go mod download
 
-WORKDIR /app/services/auth
+WORKDIR /app/swagger
 
 ENTRYPOINT ["air", "-c", ".air.toml"]

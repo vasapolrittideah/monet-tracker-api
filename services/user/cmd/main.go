@@ -13,9 +13,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/swagger"
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
-	"github.com/vasapolrittideah/money-tracker-api/services/user/docs"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/internal/controller"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/internal/repository"
 	"github.com/vasapolrittideah/money-tracker-api/services/user/internal/usecase"
@@ -109,12 +107,6 @@ func startHTTPServer(ctx context.Context, wg *sync.WaitGroup, app *bootstrap.App
 
 	a := fiber.New()
 	middleware.RegisterHTTPMiddleware(a)
-
-	a.Get("/swagger/*", swagger.New(swagger.Config{URL: "/doc.json"}))
-	a.Get("/doc.json", func(ctx *fiber.Ctx) error {
-		ctx.Set("Content-Type", "application/json")
-		return ctx.Status(200).SendString(docs.SwaggerInfo.ReadDoc())
-	})
 
 	router := a.Group("/api/v1")
 

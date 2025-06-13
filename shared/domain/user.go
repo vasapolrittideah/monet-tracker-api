@@ -50,7 +50,7 @@ type UpdateUserRequest struct {
 	FullName *string `json:"full_name,omitempty" example:"John Doe"         extensions:"x-order=1"`
 	Email    *string `json:"email,omitempty"     example:"john@example.com" extensions:"x-order=2"`
 	Verified *bool   `json:"verified,omitempty"  example:"true"             extensions:"x-order=3"`
-}
+} // @ignore
 
 type UserRepository interface {
 	GetAllUsers() ([]*User, error)

@@ -1,5 +1,6 @@
 {
   "protoc": {
     "options": ["--proto_path=protobuf"]
-  }
+  },
+  "a-file-icon-vscode.activeIconPacks": ["angular", "rails"]
 }

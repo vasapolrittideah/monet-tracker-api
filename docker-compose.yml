@@ -36,6 +36,16 @@ services:
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml
       - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml
 
+  swagger:
+    build:
+      context: .
+      dockerfile: swagger/Dockerfile
+    container_name: swagger-container
+    volumes:
+      - .:/app
+    ports:
+      - "10000:10000"
+
   user:
     build:
       context: .

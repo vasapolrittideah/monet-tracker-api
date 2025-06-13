@@ -16,6 +16,19 @@ type Token struct {
 	RefreshToken string `json:"refresh_token" extensions:"x-order=2"`
 }
 
+// @swaggerignore
+type SignUpRequest struct {
+	FullName string `json:"full_name" example:"John Doe"         extensions:"x-order=1"`
+	Email    string `json:"email"     example:"john@example.com" extensions:"x-order=2"`
+	Password string `json:"password"  example:"password"         extensions:"x-order=3"`
+}
+
+// @swaggerignore
+type SignInRequest struct {
+	Email    string `json:"email"    example:"john@example.com" extensions:"x-order=2"`
+	Password string `json:"password" example:"password"         extensions:"x-order=3"`
+}
+
 type AuthRepository interface {
 	GetExternalAuthByProviderID(providerID string) (*ExternalAuth, error)
 	CreateExternalAuth(externalAuth *ExternalAuth) (*ExternalAuth, error)
@@ -26,15 +39,4 @@ type AuthRepository interface {
 type AuthUsecase interface {
 	SignUp(req *SignUpRequest) (*User, error)
 	SignIn(req *SignInRequest) (*Token, error)
-}
-
-type SignUpRequest struct {
-	FullName string `json:"full_name" example:"John Doe"         extensions:"x-order=1"`
-	Email    string `json:"email"     example:"john@example.com" extensions:"x-order=2"`
-	Password string `json:"password"  example:"password"         extensions:"x-order=3"`
-}
-
-type SignInRequest struct {
-	Email    string `json:"email"    example:"john@example.com" extensions:"x-order=2"`
-	Password string `json:"password" example:"password"         extensions:"x-order=3"`
 }
