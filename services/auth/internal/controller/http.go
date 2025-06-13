@@ -7,6 +7,7 @@ import (
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 	"github.com/vasapolrittideah/money-tracker-api/shared/httperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/validator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -53,6 +54,12 @@ func (c *authHTTPController) SignUp(ctx *fiber.Ctx) error {
 		)
 	}
 
+	if err := validator.ValidateInput(ctx.Context(), req); err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(
+			httperror.NewValidationError(err.Details),
+		)
+	}
+
 	user, err := c.usecase.SignUp(req)
 	if err != nil {
 		st := status.Convert(err)
@@ -82,6 +89,12 @@ func (c *authHTTPController) SignIn(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(req); err != nil {
 		return ctx.Status(http.StatusBadRequest).JSON(
 			httperror.NewHTTPError(codes.InvalidArgument, err.Error()),
+		)
+	}
+
+	if err := validator.ValidateInput(ctx.Context(), req); err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(
+			httperror.NewValidationError(err.Details),
 		)
 	}
 

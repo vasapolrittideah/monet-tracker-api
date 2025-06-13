@@ -8,7 +8,6 @@ linters:
     - goconst
     - lll
     - unused
-    - dupl
   exclusions:
     rules:
       - path: '(.+)_test\.go'
