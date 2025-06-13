@@ -16,7 +16,9 @@ func main() {
 		log.Fatal("error loading .env file")
 	}
 
-	os.Setenv("POSTGRES_HOST", "localhost")
+	if err = os.Setenv("POSTGRES_HOST", "localhost"); err != nil {
+		log.Fatalf("failed to set POSTGRES_HOST: %v", err)
+	}
 
 	app := bootstrap.NewApp()
 	defer app.Close()
@@ -24,7 +26,8 @@ func main() {
 	if err := app.DB.AutoMigrate(
 		&domain.User{},
 	); err != nil {
-		log.Fatal("failed to migrate database: %v", err)
+		log.Errorf("failed to migrate database: %v", err)
+		return
 	}
 
 	log.Info("🎉 database migrated successfully")
