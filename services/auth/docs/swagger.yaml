@@ -1,0 +1,170 @@
+basePath: /api/v1
+definitions:
+  domain.SignInRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+        x-order: "2"
+      password:
+        example: password
+        type: string
+        x-order: "3"
+    type: object
+  domain.SignUpRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+        x-order: "2"
+      full_name:
+        example: John Doe
+        type: string
+        x-order: "1"
+      password:
+        example: password
+        type: string
+        x-order: "3"
+    type: object
+  domain.Token:
+    properties:
+      access_token:
+        type: string
+        x-order: "1"
+      refresh_token:
+        type: string
+        x-order: "2"
+    type: object
+  domain.User:
+    properties:
+      created_at:
+        example: "2022-01-01T00:00:00Z"
+        type: string
+        x-order: "5"
+      email:
+        example: john@example.com
+        type: string
+        x-order: "3"
+      full_name:
+        example: John Doe
+        type: string
+        x-order: "2"
+      id:
+        example: 1
+        type: integer
+        x-order: "1"
+      updated_at:
+        example: "2022-01-01T00:00:00Z"
+        type: string
+        x-order: "6"
+      verified:
+        example: true
+        type: boolean
+        x-order: "4"
+    type: object
+  httperror.HTTPError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  httperror.HTTPValidationError:
+    properties:
+      code:
+        type: integer
+      details:
+        items:
+          $ref: '#/definitions/httperror.ValidationError'
+        type: array
+      message:
+        type: string
+    type: object
+  httperror.ValidationError:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+host: moneytracker.local
+info:
+  contact:
+    email: vasapol.rittideah@outlook.com
+    name: Vasapol Rittideah
+  description: This is an auth service for Money Tracker API
+  license:
+    name: MIT
+    url: https://github.com/vasapolrittideah/money-tracker-api/blob/main/LICENSE
+  title: Money Tracker API
+  version: "1.0"
+paths:
+  /auth/sign-in:
+    post:
+      description: sign in a user
+      parameters:
+      - description: User to sign in
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Token'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperror.HTTPValidationError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httperror.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperror.HTTPError'
+      summary: Sign In
+      tags:
+      - Auth
+  /auth/sign-up:
+    post:
+      description: register a new user
+      parameters:
+      - description: User to register
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignUpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.User'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httperror.HTTPValidationError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/httperror.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httperror.HTTPError'
+      summary: Sign Up
+      tags:
+      - Auth
+swagger: "2.0"

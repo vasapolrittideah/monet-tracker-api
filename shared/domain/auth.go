@@ -1,17 +1,19 @@
 package domain
 
-import "gorm.io/gorm"
+import "time"
 
 type ExternalAuth struct {
-	gorm.Model
-	Provider   string `gorm:"not null"`
-	ProviderID string `gorm:"not null"`
+	ID         uint64 `json:"id"         gorm:"primaryKey;autoIncrement"`
+	Provider   string `                  gorm:"not null"`
+	ProviderID string `                  gorm:"not null"`
 	UserID     uint
+	CreatedAt  time.Time `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt  time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }
 
 type Token struct {
-	AccessToken  string
-	RefreshToken string
+	AccessToken  string `json:"access_token"  extensions:"x-order=1"`
+	RefreshToken string `json:"refresh_token" extensions:"x-order=2"`
 }
 
 type AuthRepository interface {
@@ -27,12 +29,12 @@ type AuthUsecase interface {
 }
 
 type SignUpRequest struct {
-	FullName string
-	Email    string
-	Password string
+	FullName string `json:"full_name" example:"John Doe"         extensions:"x-order=1"`
+	Email    string `json:"email"     example:"john@example.com" extensions:"x-order=2"`
+	Password string `json:"password"  example:"password"         extensions:"x-order=3"`
 }
 
 type SignInRequest struct {
-	Email    string
-	Password string
+	Email    string `json:"email"    example:"john@example.com" extensions:"x-order=2"`
+	Password string `json:"password" example:"password"         extensions:"x-order=3"`
 }

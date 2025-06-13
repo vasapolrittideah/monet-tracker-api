@@ -32,6 +32,18 @@ func (c *authHTTPController) RegisterRoutes() {
 	router.Post("/sign-in", c.SignIn)
 }
 
+// SignUp godoc
+// @Summary Sign Up
+// @Description register a new user
+// @Tags Auth
+// @Acceopt json
+// @Produce json
+// @Param user body domain.SignUpRequest true "User to register"
+// @Success 200 {array} domain.User "OK"
+// @Failure 400 {object} httperror.HTTPValidationError "Bad Request"
+// @Failure 409 {object} httperror.HTTPError "Conflict"
+// @Failure 500 {object} httperror.HTTPError "Internal Server Error"
+// @Router /auth/sign-up [post]
 func (c *authHTTPController) SignUp(ctx *fiber.Ctx) error {
 	req := new(domain.SignUpRequest)
 
@@ -52,6 +64,18 @@ func (c *authHTTPController) SignUp(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(user)
 }
 
+// SignIn godoc
+// @Summary Sign In
+// @Description sign in a user
+// @Tags Auth
+// @Acceopt json
+// @Produce json
+// @Param user body domain.SignInRequest true "User to sign in"
+// @Success 200 {array} domain.Token "OK"
+// @Failure 400 {object} httperror.HTTPValidationError "Bad Request"
+// @Failure 401 {object} httperror.HTTPError "Unauthorized"
+// @Failure 500 {object} httperror.HTTPError "Internal Server Error"
+// @Router /auth/sign-in [post]
 func (c *authHTTPController) SignIn(ctx *fiber.Ctx) error {
 	req := new(domain.SignInRequest)
 
