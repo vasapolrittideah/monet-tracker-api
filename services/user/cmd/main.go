@@ -20,6 +20,7 @@ import (
 	"github.com/vasapolrittideah/money-tracker-api/shared/bootstrap"
 	"github.com/vasapolrittideah/money-tracker-api/shared/consul"
 	"github.com/vasapolrittideah/money-tracker-api/shared/middleware"
+	"github.com/vasapolrittideah/money-tracker-api/shared/validator"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -38,6 +39,7 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
+	validator.Init()
 	app := bootstrap.NewApp()
 	defer app.Close()
 

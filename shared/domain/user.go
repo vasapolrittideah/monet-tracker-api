@@ -41,27 +41,27 @@ func NewUserFromProto(user *userv1.User) *User {
 }
 
 type CreateUserRequest struct {
-	FullName string `json:"full_name" example:"John Doe"         extensions:"x-order=1"`
-	Email    string `json:"email"     example:"john@example.com" extensions:"x-order=2"`
-	Password string `json:"password"`
+	FullName string `json:"full_name" validate:"required"       example:"John Doe"         extensions:"x-order=1"`
+	Email    string `json:"email"     validate:"required,email" example:"john@example.com" extensions:"x-order=2"`
+	Password string `json:"password"  validate:"required"       example:"securepassword"   extensions:"x-order=3"`
 }
 
 type UpdateUserRequest struct {
-	FullName *string `json:"full_name,omitempty" example:"John Doe"         extensions:"x-order=1"`
-	Email    *string `json:"email,omitempty"     example:"john@example.com" extensions:"x-order=2"`
-	Verified *bool   `json:"verified,omitempty"  example:"true"             extensions:"x-order=3"`
-} // @ignore
+	FullName *string `json:"full_name" example:"John Doe"         extensions:"x-order=1"`
+	Email    *string `json:"email"     example:"john@example.com" extensions:"x-order=2" validate:"omitempty,email"`
+	Verified *bool   `json:"verified"  example:"true"             extensions:"x-order=3"`
+}
 
-type UserRepository interface {
+type UserUsecase interface {
 	GetAllUsers() ([]*User, error)
 	GetUserByID(id uint64) (*User, error)
 	GetUserByEmail(email string) (*User, error)
-	CreateUser(user *User) (*User, error)
+	CreateUser(req *User) (*User, error)
 	UpdateUser(id uint64, user *User) (*User, error)
 	DeleteUser(id uint64) (*User, error)
 }
 
-type UserUsecase interface {
+type UserRepository interface {
 	GetAllUsers() ([]*User, error)
 	GetUserByID(id uint64) (*User, error)
 	GetUserByEmail(email string) (*User, error)

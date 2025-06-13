@@ -80,10 +80,6 @@ func (u *userUsecase) CreateUser(user *domain.User) (*domain.User, error) {
 }
 
 func (u *userUsecase) UpdateUser(id uint64, user *domain.User) (*domain.User, error) {
-	if _, err := u.GetUserByID(id); err != nil {
-		return nil, err
-	}
-
 	updatedUser, err := u.repository.UpdateUser(id, user)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to update user: %v", err)
@@ -93,10 +89,6 @@ func (u *userUsecase) UpdateUser(id uint64, user *domain.User) (*domain.User, er
 }
 
 func (u *userUsecase) DeleteUser(id uint64) (*domain.User, error) {
-	if _, err := u.GetUserByID(id); err != nil {
-		return nil, err
-	}
-
 	deletedUser, err := u.repository.DeleteUser(id)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to delete user: %v", err)

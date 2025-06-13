@@ -9,6 +9,7 @@ import (
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 	"github.com/vasapolrittideah/money-tracker-api/shared/httperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/validator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -152,6 +153,12 @@ func (c *userHTTPController) CreateUser(ctx *fiber.Ctx) error {
 		)
 	}
 
+	if err := validator.ValidateInput(ctx.Context(), req); err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(
+			httperror.NewValidationError(err.Details),
+		)
+	}
+
 	user := domain.User{
 		FullName: req.FullName,
 		Email:    req.Email,
@@ -192,15 +199,39 @@ func (c *userHTTPController) UpdateUser(ctx *fiber.Ctx) error {
 		)
 	}
 
-	var user domain.User
-	if err := ctx.BodyParser(&user); err != nil {
+	var req domain.UpdateUserRequest
+	if err := ctx.BodyParser(&req); err != nil {
 		st := status.Convert(err)
 		return ctx.Status(http.StatusBadGateway).JSON(
 			httperror.NewHTTPError(codes.InvalidArgument, st.Message()),
 		)
 	}
 
-	updatedUser, err := c.usecase.UpdateUser(id, &user)
+	if err := validator.ValidateInput(ctx.Context(), req); err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(
+			httperror.NewValidationError(err.Details),
+		)
+	}
+
+	user, err := c.usecase.GetUserByID(id)
+	if err != nil {
+		st := status.Convert(err)
+		return ctx.Status(httperror.HTTPStatusFromCode(st.Code())).JSON(
+			httperror.NewHTTPError(st.Code(), st.Message()),
+		)
+	}
+
+	if req.FullName != nil {
+		user.FullName = *req.FullName
+	}
+	if req.Email != nil {
+		user.Email = *req.Email
+	}
+	if req.Verified != nil {
+		user.Verified = *req.Verified
+	}
+
+	updatedUser, err := c.usecase.UpdateUser(id, user)
 	if err != nil {
 		st := status.Convert(err)
 		return ctx.Status(httperror.HTTPStatusFromCode(st.Code())).JSON(
