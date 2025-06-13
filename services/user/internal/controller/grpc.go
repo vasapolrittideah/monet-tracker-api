@@ -86,6 +86,7 @@ func (c *userGRPCController) UpdateUser(
 	req *userpbv1.UpdateUserRequest,
 ) (*userpbv1.UpdateUserResponse, error) {
 	user := &domain.User{
+		ID:           req.Id,
 		FullName:     req.FullName,
 		Email:        req.Email,
 		Verified:     req.Verified,
@@ -93,7 +94,7 @@ func (c *userGRPCController) UpdateUser(
 		RefreshToken: req.RefreshToken,
 	}
 
-	updatedUser, err := c.usecase.UpdateUser(req.Id, user)
+	updatedUser, err := c.usecase.UpdateUser(user)
 	if err != nil {
 		log.Error(err)
 		return nil, err

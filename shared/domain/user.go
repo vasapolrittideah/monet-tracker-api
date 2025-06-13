@@ -56,8 +56,8 @@ type UserUsecase interface {
 	GetAllUsers() ([]*User, error)
 	GetUserByID(id uint64) (*User, error)
 	GetUserByEmail(email string) (*User, error)
-	CreateUser(req *User) (*User, error)
-	UpdateUser(id uint64, user *User) (*User, error)
+	CreateUser(user *User) (*User, error)
+	UpdateUser(user *User) (*User, error)
 	DeleteUser(id uint64) (*User, error)
 }
 
@@ -66,6 +66,6 @@ type UserRepository interface {
 	GetUserByID(id uint64) (*User, error)
 	GetUserByEmail(email string) (*User, error)
 	CreateUser(user *User) (*User, error)
-	UpdateUser(id uint64, user *User) (*User, error)
+	UpdateUser(user *User) (*User, error)
 	DeleteUser(id uint64) (*User, error)
 }

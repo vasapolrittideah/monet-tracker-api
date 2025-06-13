@@ -231,7 +231,7 @@ func (c *userHTTPController) UpdateUser(ctx *fiber.Ctx) error {
 		user.Verified = *req.Verified
 	}
 
-	updatedUser, err := c.usecase.UpdateUser(id, user)
+	updatedUser, err := c.usecase.UpdateUser(user)
 	if err != nil {
 		st := status.Convert(err)
 		return ctx.Status(httperror.HTTPStatusFromCode(st.Code())).JSON(

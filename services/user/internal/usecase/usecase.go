@@ -67,7 +67,7 @@ func (u *userUsecase) CreateUser(user *domain.User) (*domain.User, error) {
 
 	user.Password = hashedPassword
 
-	createdUser, err := u.repository.CreateUser(user)
+	created, err := u.repository.CreateUser(user)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key") {
 			return nil, status.Errorf(codes.AlreadyExists, "user already exists: %v", err)
@@ -76,23 +76,32 @@ func (u *userUsecase) CreateUser(user *domain.User) (*domain.User, error) {
 		return nil, status.Errorf(codes.Internal, "failed to create user: %v", err)
 	}
 
-	return createdUser, nil
+	return created, nil
 }
 
-func (u *userUsecase) UpdateUser(id uint64, user *domain.User) (*domain.User, error) {
-	updatedUser, err := u.repository.UpdateUser(id, user)
+func (u *userUsecase) UpdateUser(user *domain.User) (*domain.User, error) {
+	existing, err := u.GetUserByID(user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if existing.FullName == user.FullName && existing.Email == user.Email && existing.Verified == user.Verified {
+		return nil, status.Errorf(codes.InvalidArgument, "no changes detected")
+	}
+
+	updated, err := u.repository.UpdateUser(user)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to update user: %v", err)
 	}
 
-	return updatedUser, nil
+	return updated, nil
 }
 
 func (u *userUsecase) DeleteUser(id uint64) (*domain.User, error) {
-	deletedUser, err := u.repository.DeleteUser(id)
+	deleted, err := u.repository.DeleteUser(id)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to delete user: %v", err)
 	}
 
-	return deletedUser, nil
+	return deleted, nil
 }

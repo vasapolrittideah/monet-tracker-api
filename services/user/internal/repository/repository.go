@@ -48,15 +48,15 @@ func (r *userRepository) CreateUser(user *domain.User) (*domain.User, error) {
 	return user, nil
 }
 
-func (r *userRepository) UpdateUser(id uint64, updated *domain.User) (*domain.User, error) {
+func (r *userRepository) UpdateUser(updated *domain.User) (*domain.User, error) {
 	var user domain.User
-	if err := r.db.First(&user, "id = ?", id).Error; err != nil {
+	if err := r.db.First(&user, "id = ?", updated.ID).Error; err != nil {
 		return nil, err
 	}
-	if err := r.db.Model(&user).Where("id = ?", id).Save(updated).Error; err != nil {
+	if err := r.db.Model(&user).Where("id = ?", updated.ID).Save(updated).Error; err != nil {
 		return nil, err
 	}
-	if err := r.db.First(&user, "id = ?", id).Error; err != nil {
+	if err := r.db.First(&user, "id = ?", updated.ID).Error; err != nil {
 		return nil, err
 	}
 
