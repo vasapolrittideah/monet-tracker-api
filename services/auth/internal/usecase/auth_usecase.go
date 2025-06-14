@@ -67,25 +67,12 @@ func (u *authUsecase) SignIn(req *domain.SignInRequest) (*domain.Token, error) {
 		return nil, status.Errorf(codes.Unauthenticated, "invalid password")
 	}
 
-	accessToken, err := tokenutil.GenerateToken(
-		u.config.JWT.AccessTokenExpiresIn,
-		u.config.JWT.AccessTokenSecretKey,
-		user.ID,
-	)
+	token, err := generateTokens(user.ID, &u.config.JWT)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "unable to generate access token: %v", err)
+		return nil, err
 	}
 
-	refreshToken, err := tokenutil.GenerateToken(
-		u.config.JWT.RefreshTokenExpiresIn,
-		u.config.JWT.RefreshTokenSecretKey,
-		user.ID,
-	)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "unable to generate refresh token: %v", err)
-	}
-
-	hashedRefreshToken, err := hashutil.Hash(refreshToken)
+	hashedRefreshToken, err := hashutil.Hash(token.RefreshToken)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "unable to hash refresh token: %v", err)
 	}
@@ -96,6 +83,28 @@ func (u *authUsecase) SignIn(req *domain.SignInRequest) (*domain.Token, error) {
 	}); err != nil {
 		st := status.Convert(err)
 		return nil, status.Errorf(st.Code(), "failed to update user: %s", st.Message())
+	}
+
+	return token, nil
+}
+
+func generateTokens(userID uint64, jwtConfig *config.JWTConfig) (*domain.Token, error) {
+	accessToken, err := tokenutil.GenerateToken(
+		jwtConfig.AccessTokenExpiresIn,
+		jwtConfig.AccessTokenSecretKey,
+		userID,
+	)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to generate access token: %v", err)
+	}
+
+	refreshToken, err := tokenutil.GenerateToken(
+		jwtConfig.RefreshTokenExpiresIn,
+		jwtConfig.RefreshTokenSecretKey,
+		userID,
+	)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to generate refresh token: %v", err)
 	}
 
 	return &domain.Token{

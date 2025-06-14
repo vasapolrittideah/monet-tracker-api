@@ -6,7 +6,7 @@ type ExternalAuth struct {
 	ID         uint64 `json:"id"         gorm:"primaryKey;autoIncrement"`
 	Provider   string `                  gorm:"not null"`
 	ProviderID string `                  gorm:"not null"`
-	UserID     uint
+	UserID     uint64
 	CreatedAt  time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt  time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }
@@ -39,4 +39,9 @@ type AuthRepository interface {
 type AuthUsecase interface {
 	SignUp(req *SignUpRequest) (*User, error)
 	SignIn(req *SignInRequest) (*Token, error)
+}
+
+type OAuthGoogleUsecase interface {
+	HandleGoogleCallback(code string) (*Token, error)
+	GetSignInWithGoogleURL(state string) string
 }
