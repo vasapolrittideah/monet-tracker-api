@@ -20,23 +20,27 @@ type User struct {
 
 func (u *User) ToProto() *userv1.User {
 	return &userv1.User{
-		Id:        u.ID,
-		FullName:  u.FullName,
-		Email:     u.Email,
-		Verified:  u.Verified,
-		CreatedAt: timestamppb.New(u.CreatedAt),
-		UpdatedAt: timestamppb.New(u.UpdatedAt),
+		Id:           u.ID,
+		FullName:     u.FullName,
+		Email:        u.Email,
+		Verified:     u.Verified,
+		Password:     u.Password,
+		RefreshToken: u.RefreshToken,
+		CreatedAt:    timestamppb.New(u.CreatedAt),
+		UpdatedAt:    timestamppb.New(u.UpdatedAt),
 	}
 }
 
 func NewUserFromProto(user *userv1.User) *User {
 	return &User{
-		ID:        user.Id,
-		FullName:  user.FullName,
-		Email:     user.Email,
-		Verified:  user.Verified,
-		CreatedAt: user.CreatedAt.AsTime(),
-		UpdatedAt: user.UpdatedAt.AsTime(),
+		ID:           user.Id,
+		FullName:     user.FullName,
+		Email:        user.Email,
+		Verified:     user.Verified,
+		Password:     user.Password,
+		RefreshToken: user.RefreshToken,
+		CreatedAt:    user.CreatedAt.AsTime(),
+		UpdatedAt:    user.UpdatedAt.AsTime(),
 	}
 }
 

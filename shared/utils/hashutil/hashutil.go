@@ -16,6 +16,6 @@ func Hash(input string) (string, error) {
 	return string(encoded), nil
 }
 
-func Verify(encoded string, password string) (bool, error) {
+func Verify(password string, encoded string) (bool, error) {
 	return argon2.VerifyEncoded([]byte(password), []byte(encoded))
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/vasapolrittideah/money-tracker-api/shared/utils/tokenutil"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type authUsercase struct {
@@ -62,7 +63,7 @@ func (u *authUsercase) SignIn(req *domain.SignInRequest) (*domain.Token, error) 
 
 	user := domain.NewUserFromProto(res.User)
 
-	if ok, err := hashutil.Verify(user.Password, req.Password); err != nil || !ok {
+	if ok, err := hashutil.Verify(req.Password, user.Password); err != nil || !ok {
 		return nil, status.Errorf(codes.Unauthenticated, "invalid password")
 	}
 
@@ -90,7 +91,8 @@ func (u *authUsercase) SignIn(req *domain.SignInRequest) (*domain.Token, error) 
 	}
 
 	if _, err = u.userClient.UpdateUser(ctx, &userpbv1.UpdateUserRequest{
-		RefreshToken: hashedRefreshToken,
+		Id:           user.ID,
+		RefreshToken: wrapperspb.String(hashedRefreshToken),
 	}); err != nil {
 		st := status.Convert(err)
 		return nil, status.Errorf(st.Code(), "failed to update user: %s", st.Message())

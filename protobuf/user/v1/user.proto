@@ -5,6 +5,7 @@ package user.v1;
 option go_package = "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1;userpbv1";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 service UserService {
   rpc GetAllUsers (GetAllUsersRequest) returns (GetAllUsersResponse) {}
@@ -45,11 +46,11 @@ message CreateUserRequest {
 
 message UpdateUserRequest {
   uint64 id = 1;
-  string full_name = 2;
-  string email = 3;
-  string password = 4;
-  bool verified = 5;
-  string refresh_token = 6;
+  google.protobuf.StringValue full_name = 2;
+  google.protobuf.StringValue email = 3;
+  google.protobuf.StringValue password = 4;
+  google.protobuf.BoolValue verified = 5;
+  google.protobuf.StringValue refresh_token = 6;
 }
 
 message DeleteUserRequest {

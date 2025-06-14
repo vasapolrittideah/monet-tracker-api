@@ -73,44 +73,56 @@ func (c *userGRPCController) CreateUser(
 		Password: req.Password,
 	}
 
-	createdUser, err := c.usecase.CreateUser(user)
+	created, err := c.usecase.CreateUser(user)
 	if err != nil {
 		return nil, err
 	}
 
-	return &userpbv1.CreateUserResponse{User: createdUser.ToProto()}, nil
+	return &userpbv1.CreateUserResponse{User: created.ToProto()}, nil
 }
 
 func (c *userGRPCController) UpdateUser(
 	ctx context.Context,
 	req *userpbv1.UpdateUserRequest,
 ) (*userpbv1.UpdateUserResponse, error) {
-	user := &domain.User{
-		ID:           req.Id,
-		FullName:     req.FullName,
-		Email:        req.Email,
-		Verified:     req.Verified,
-		Password:     req.Password,
-		RefreshToken: req.RefreshToken,
+	user, err := c.usecase.GetUserByID(req.Id)
+	if err != nil {
+		return nil, err
 	}
 
-	updatedUser, err := c.usecase.UpdateUser(user)
+	if req.FullName != nil {
+		user.FullName = req.FullName.GetValue()
+	}
+	if req.Email != nil {
+		user.Email = req.Email.GetValue()
+	}
+	if req.Verified != nil {
+		user.Verified = req.Verified.GetValue()
+	}
+	if req.Password != nil {
+		user.Password = req.Password.GetValue()
+	}
+	if req.RefreshToken != nil {
+		user.RefreshToken = req.RefreshToken.GetValue()
+	}
+
+	updated, err := c.usecase.UpdateUser(user)
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
 
-	return &userpbv1.UpdateUserResponse{User: updatedUser.ToProto()}, nil
+	return &userpbv1.UpdateUserResponse{User: updated.ToProto()}, nil
 }
 
 func (c *userGRPCController) DeleteUser(
 	ctx context.Context,
 	req *userpbv1.DeleteUserRequest,
 ) (*userpbv1.DeleteUserResponse, error) {
-	deletedUser, err := c.usecase.DeleteUser(req.Id)
+	deleted, err := c.usecase.DeleteUser(req.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	return &userpbv1.DeleteUserResponse{User: deletedUser.ToProto()}, nil
+	return &userpbv1.DeleteUserResponse{User: deleted.ToProto()}, nil
 }

@@ -85,7 +85,11 @@ func (u *userUsecase) UpdateUser(user *domain.User) (*domain.User, error) {
 		return nil, err
 	}
 
-	if existing.FullName == user.FullName && existing.Email == user.Email && existing.Verified == user.Verified {
+	if existing.FullName == user.FullName &&
+		existing.Email == user.Email &&
+		existing.Verified == user.Verified &&
+		existing.Password == user.Password &&
+		existing.RefreshToken == user.RefreshToken {
 		return nil, status.Errorf(codes.InvalidArgument, "no changes detected")
 	}
 
