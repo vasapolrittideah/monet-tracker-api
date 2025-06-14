@@ -14,19 +14,19 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-type authUsercase struct {
+type authUsecase struct {
 	userClient userpbv1.UserServiceClient
 	config     *config.Config
 }
 
 func NewAuthUsecase(userClient userpbv1.UserServiceClient, config *config.Config) domain.AuthUsecase {
-	return &authUsercase{
+	return &authUsecase{
 		userClient: userClient,
 		config:     config,
 	}
 }
 
-func (u *authUsercase) SignUp(req *domain.SignUpRequest) (*domain.User, error) {
+func (u *authUsecase) SignUp(req *domain.SignUpRequest) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -49,7 +49,7 @@ func (u *authUsercase) SignUp(req *domain.SignUpRequest) (*domain.User, error) {
 	return domain.NewUserFromProto(res.User), nil
 }
 
-func (u *authUsercase) SignIn(req *domain.SignInRequest) (*domain.Token, error) {
+func (u *authUsecase) SignIn(req *domain.SignInRequest) (*domain.Token, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
