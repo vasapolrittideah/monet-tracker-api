@@ -8,6 +8,7 @@ import (
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
+	"github.com/vasapolrittideah/money-tracker-api/shared/utils/tokenutil"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	googleOAuth "google.golang.org/api/oauth2/v2"
@@ -129,4 +130,29 @@ func getGoogleUserInfo(code string, config *oauth2.Config) (*googleOAuth.Userinf
 	}
 
 	return userInfo, nil
+}
+
+func generateTokens(userID uint64, jwtConfig *config.JWTConfig) (*domain.Token, error) {
+	accessToken, err := tokenutil.GenerateToken(
+		jwtConfig.AccessTokenExpiresIn,
+		jwtConfig.AccessTokenSecretKey,
+		userID,
+	)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to generate access token: %v", err)
+	}
+
+	refreshToken, err := tokenutil.GenerateToken(
+		jwtConfig.RefreshTokenExpiresIn,
+		jwtConfig.RefreshTokenSecretKey,
+		userID,
+	)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to generate refresh token: %v", err)
+	}
+
+	return &domain.Token{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }
