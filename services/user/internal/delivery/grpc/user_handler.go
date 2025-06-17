@@ -1,4 +1,4 @@
-package controller
+package grpchandler
 
 import (
 	"context"
@@ -9,20 +9,20 @@ import (
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 )
 
-type userGRPCController struct {
+type userGRPCHandler struct {
 	usecase domain.UserUsecase
 	config  *config.Config
 	userpbv1.UnimplementedUserServiceServer
 }
 
-func NewUserGRPCController(usecase domain.UserUsecase, config *config.Config) *userGRPCController {
-	return &userGRPCController{
+func NewUserGRPCHandler(usecase domain.UserUsecase, config *config.Config) *userGRPCHandler {
+	return &userGRPCHandler{
 		usecase: usecase,
 		config:  config,
 	}
 }
 
-func (c *userGRPCController) GetAllUsers(
+func (c *userGRPCHandler) GetAllUsers(
 	ctx context.Context,
 	req *userpbv1.GetAllUsersRequest,
 ) (*userpbv1.GetAllUsersResponse, error) {
@@ -39,7 +39,7 @@ func (c *userGRPCController) GetAllUsers(
 	return &userpbv1.GetAllUsersResponse{Users: protoUsers}, nil
 }
 
-func (c *userGRPCController) GetUserByID(
+func (c *userGRPCHandler) GetUserByID(
 	ctx context.Context,
 	req *userpbv1.GetUserByIDRequest,
 ) (*userpbv1.GetUserByIDResponse, error) {
@@ -51,7 +51,7 @@ func (c *userGRPCController) GetUserByID(
 	return &userpbv1.GetUserByIDResponse{User: user.ToProto()}, nil
 }
 
-func (c *userGRPCController) GetUserByEmail(
+func (c *userGRPCHandler) GetUserByEmail(
 	ctx context.Context,
 	req *userpbv1.GetUserByEmailRequest,
 ) (*userpbv1.GetUserByEmailResponse, error) {
@@ -63,7 +63,7 @@ func (c *userGRPCController) GetUserByEmail(
 	return &userpbv1.GetUserByEmailResponse{User: user.ToProto()}, nil
 }
 
-func (c *userGRPCController) CreateUser(
+func (c *userGRPCHandler) CreateUser(
 	ctx context.Context,
 	req *userpbv1.CreateUserRequest,
 ) (*userpbv1.CreateUserResponse, error) {
@@ -81,7 +81,7 @@ func (c *userGRPCController) CreateUser(
 	return &userpbv1.CreateUserResponse{User: created.ToProto()}, nil
 }
 
-func (c *userGRPCController) UpdateUser(
+func (c *userGRPCHandler) UpdateUser(
 	ctx context.Context,
 	req *userpbv1.UpdateUserRequest,
 ) (*userpbv1.UpdateUserResponse, error) {
@@ -115,7 +115,7 @@ func (c *userGRPCController) UpdateUser(
 	return &userpbv1.UpdateUserResponse{User: updated.ToProto()}, nil
 }
 
-func (c *userGRPCController) DeleteUser(
+func (c *userGRPCHandler) DeleteUser(
 	ctx context.Context,
 	req *userpbv1.DeleteUserRequest,
 ) (*userpbv1.DeleteUserResponse, error) {

@@ -5,7 +5,8 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/joho/godotenv"
-	"github.com/vasapolrittideah/money-tracker-api/shared/bootstrap"
+	"github.com/vasapolrittideah/money-tracker-api/shared/config"
+	"github.com/vasapolrittideah/money-tracker-api/shared/database"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 )
 
@@ -20,15 +21,17 @@ func main() {
 		log.Fatalf("failed to set POSTGRES_HOST: %v", err)
 	}
 
-	app := bootstrap.NewApp()
-	defer app.Close()
+	cfg := config.Load()
+	db := database.Connect(&cfg.Database)
 
-	if err := app.DB.AutoMigrate(
+	if err := db.AutoMigrate(
 		&domain.User{},
 	); err != nil {
 		log.Errorf("failed to migrate database: %v", err)
 		return
 	}
+
+	database.Close(db)
 
 	log.Info("🎉 database migrated successfully")
 }

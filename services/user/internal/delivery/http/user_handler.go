@@ -1,4 +1,4 @@
-package controller
+package httphandler
 
 import (
 	"net/http"
@@ -14,25 +14,25 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type userHTTPController struct {
+type userHTTPHandler struct {
 	usecase domain.UserUsecase
 	router  fiber.Router
 	config  *config.Config
 }
 
-func NewUserHTTPController(
+func NewUserHTTPHandler(
 	usecase domain.UserUsecase,
 	router fiber.Router,
 	config *config.Config,
-) *userHTTPController {
-	return &userHTTPController{
+) *userHTTPHandler {
+	return &userHTTPHandler{
 		usecase: usecase,
 		router:  router,
 		config:  config,
 	}
 }
 
-func (c *userHTTPController) RegisterRoutes() {
+func (c *userHTTPHandler) RegisterRoutes() {
 	router := c.router.Group("/users")
 
 	router.Get("/", c.GetAllUsers)
@@ -53,7 +53,7 @@ func (c *userHTTPController) RegisterRoutes() {
 // @Failure 404 {object} httperror.HTTPError "Not Found"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users [get]
-func (c *userHTTPController) GetAllUsers(ctx *fiber.Ctx) error {
+func (c *userHTTPHandler) GetAllUsers(ctx *fiber.Ctx) error {
 	users, err := c.usecase.GetAllUsers()
 	if err != nil {
 		st := status.Convert(err)
@@ -77,7 +77,7 @@ func (c *userHTTPController) GetAllUsers(ctx *fiber.Ctx) error {
 // @Failure 404 {object} httperror.HTTPError "Not Found"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users/{id} [get]
-func (c *userHTTPController) GetUserByID(ctx *fiber.Ctx) error {
+func (c *userHTTPHandler) GetUserByID(ctx *fiber.Ctx) error {
 	idParam := ctx.Params("id")
 
 	id, err := strconv.ParseUint(idParam, 10, 64)
@@ -110,7 +110,7 @@ func (c *userHTTPController) GetUserByID(ctx *fiber.Ctx) error {
 // @Failure 404 {object} httperror.HTTPError "Not Found"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users/email/{email} [get]
-func (c *userHTTPController) GetUserByEmail(ctx *fiber.Ctx) error {
+func (c *userHTTPHandler) GetUserByEmail(ctx *fiber.Ctx) error {
 	email := ctx.Params("email")
 
 	_, err := mail.ParseAddress(email)
@@ -143,7 +143,7 @@ func (c *userHTTPController) GetUserByEmail(ctx *fiber.Ctx) error {
 // @Failure 409 {object} httperror.HTTPError "Conflict"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users [post]
-func (c *userHTTPController) CreateUser(ctx *fiber.Ctx) error {
+func (c *userHTTPHandler) CreateUser(ctx *fiber.Ctx) error {
 	var req domain.CreateUserRequest
 
 	if err := ctx.BodyParser(&req); err != nil {
@@ -189,7 +189,7 @@ func (c *userHTTPController) CreateUser(ctx *fiber.Ctx) error {
 // @Failure 404 {object} httperror.HTTPError "Not Found"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users/{id} [put]
-func (c *userHTTPController) UpdateUser(ctx *fiber.Ctx) error {
+func (c *userHTTPHandler) UpdateUser(ctx *fiber.Ctx) error {
 	idParam := ctx.Params("id")
 
 	id, err := strconv.ParseUint(idParam, 10, 64)
@@ -254,7 +254,7 @@ func (c *userHTTPController) UpdateUser(ctx *fiber.Ctx) error {
 // @Failure 404 {object} httperror.HTTPError "Not Found"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users/{id} [delete]
-func (c *userHTTPController) DeleteUser(ctx *fiber.Ctx) error {
+func (c *userHTTPHandler) DeleteUser(ctx *fiber.Ctx) error {
 	idParam := ctx.Params("id")
 
 	id, err := strconv.ParseUint(idParam, 10, 64)

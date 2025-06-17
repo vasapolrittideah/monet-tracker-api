@@ -1,4 +1,4 @@
-package controller
+package httphandler
 
 import (
 	"net/http"
@@ -12,21 +12,21 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type authHTTPController struct {
+type authHTTPHandler struct {
 	usecase domain.AuthUsecase
 	router  fiber.Router
 	config  *config.Config
 }
 
-func NewAuthHTTPController(usecase domain.AuthUsecase, router fiber.Router, config *config.Config) *authHTTPController {
-	return &authHTTPController{
+func NewAuthHTTPHandler(usecase domain.AuthUsecase, router fiber.Router, config *config.Config) *authHTTPHandler {
+	return &authHTTPHandler{
 		usecase: usecase,
 		router:  router,
 		config:  config,
 	}
 }
 
-func (c *authHTTPController) RegisterRoutes() {
+func (c *authHTTPHandler) RegisterRoutes() {
 	router := c.router.Group("/auth")
 
 	router.Post("/sign-up", c.SignUp)
@@ -45,7 +45,7 @@ func (c *authHTTPController) RegisterRoutes() {
 // @Failure 409 {object} httperror.HTTPError "Conflict"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /auth/sign-up [post]
-func (c *authHTTPController) SignUp(ctx *fiber.Ctx) error {
+func (c *authHTTPHandler) SignUp(ctx *fiber.Ctx) error {
 	req := new(domain.SignUpRequest)
 
 	if err := ctx.BodyParser(req); err != nil {
@@ -83,7 +83,7 @@ func (c *authHTTPController) SignUp(ctx *fiber.Ctx) error {
 // @Failure 401 {object} httperror.HTTPError "Unauthorized"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /auth/sign-in [post]
-func (c *authHTTPController) SignIn(ctx *fiber.Ctx) error {
+func (c *authHTTPHandler) SignIn(ctx *fiber.Ctx) error {
 	req := new(domain.SignInRequest)
 
 	if err := ctx.BodyParser(req); err != nil {
