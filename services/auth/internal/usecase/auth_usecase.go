@@ -36,10 +36,18 @@ func (u *authUsecase) SignUp(req *domain.SignUpRequest) (*domain.User, error) {
 		Password: req.Password,
 	}
 
-	res, err := u.userClient.CreateUser(ctx, &userpbv1.CreateUserRequest{
+	created, err := u.userClient.CreateUser(ctx, &userpbv1.CreateUserRequest{
 		FullName: newUser.FullName,
 		Email:    newUser.Email,
 		Password: newUser.Password,
+	})
+	if err != nil {
+		return nil, grpcerror.ToAppError(err)
+	}
+
+	res, err := u.userClient.UpdateUser(ctx, &userpbv1.UpdateUserRequest{
+		Id:         created.User.Id,
+		Registered: wrapperspb.Bool(true),
 	})
 	if err != nil {
 		return nil, grpcerror.ToAppError(err)

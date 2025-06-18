@@ -65,8 +65,10 @@ func (u *oauthGoogleUsecase) HandleGoogleCallback(code string) (*domain.Token, e
 		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
 	}
 
+	// Check if Google account already linked
 	externalAuth, err := u.authRepo.GetExternalAuthByProviderID(userInfo.Id)
 	if err == nil {
+		// Google account already linked, generate tokens
 		token, err := generateTokens(externalAuth.UserID, &u.config.JWT)
 		if err != nil {
 			return nil, apperror.NewError(apperror.ErrInternal, err.Error())
@@ -79,18 +81,21 @@ func (u *oauthGoogleUsecase) HandleGoogleCallback(code string) (*domain.Token, e
 		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
 	}
 
+	// Try to find local user by Google email
 	res, err := u.userClient.GetUserByEmail(ctx, &userpbv1.GetUserByEmailRequest{
 		Email: userInfo.Email,
 	})
 
 	var userID uint64
+
 	if err != nil {
 		appErr := grpcerror.ToAppError(err).(*apperror.AppError)
 		if appErr.Code != apperror.ErrNotFound {
 			return nil, appErr
 		}
 
-		_, err := u.userClient.CreateUser(ctx, &userpbv1.CreateUserRequest{
+		// User not found, create new local user
+		created, err := u.userClient.CreateUser(ctx, &userpbv1.CreateUserRequest{
 			FullName: userInfo.Name,
 			Email:    userInfo.Email,
 			Password: "",
@@ -99,11 +104,12 @@ func (u *oauthGoogleUsecase) HandleGoogleCallback(code string) (*domain.Token, e
 			return nil, grpcerror.ToAppError(err)
 		}
 
-		return nil, apperror.NewError(apperror.ErrNotFound, "user not register yet")
+		userID = created.User.Id
 	} else {
 		userID = res.User.Id
 	}
 
+	// Link Google account to local user
 	_, err = u.authRepo.CreateExternalAuth(&domain.ExternalAuth{
 		ProviderID: userInfo.Id,
 		Provider:   "GOOGLE",
@@ -113,6 +119,7 @@ func (u *oauthGoogleUsecase) HandleGoogleCallback(code string) (*domain.Token, e
 		return nil, err
 	}
 
+	// Generate token for newly created and linked user
 	token, err := generateTokens(userID, &u.config.JWT)
 	if err != nil {
 		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
