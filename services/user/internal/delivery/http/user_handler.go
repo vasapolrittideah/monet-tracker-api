@@ -37,7 +37,6 @@ func (h *userHTTPHandler) RegisterRoutes() {
 	router.Get("/", h.GetAllUsers)
 	router.Get("/:id", h.GetUserByID)
 	router.Get("/email/:email", h.GetUserByEmail)
-	router.Post("/", h.CreateUser)
 	router.Put("/:id", h.UpdateUser)
 	router.Delete("/:id", h.DeleteUser)
 }
@@ -115,43 +114,6 @@ func (h *userHTTPHandler) GetUserByEmail(c *fiber.Ctx) error {
 	}
 
 	return c.Status(http.StatusOK).JSON(user)
-}
-
-// CreateUser godoc
-// @Summary Create user
-// @Description create a new user
-// @Tags User
-// @Acceopt json
-// @Produce json
-// @Param user body domain.CreateUserRequest true "User to create"
-// @Success 200 {object} domain.User "OK"
-// @Failure 400 {object} httperror.HTTPValidationError "Bad Request"
-// @Failure 409 {object} httperror.HTTPError "Conflict"
-// @Failure 500 {object} httperror.HTTPError "Internal Server Error"
-// @Router /users [post]
-func (h *userHTTPHandler) CreateUser(c *fiber.Ctx) error {
-	var req domain.CreateUserRequest
-
-	if err := c.BodyParser(&req); err != nil {
-		return httperror.NewBadRequestError(c, err.Error())
-	}
-
-	if err := validator.ValidateInput(c.Context(), req); err != nil {
-		return httperror.NewValidationError(c, err)
-	}
-
-	user := domain.User{
-		FullName: req.FullName,
-		Email:    req.Email,
-		Password: req.Password,
-	}
-
-	created, err := h.usecase.CreateUser(&user)
-	if err != nil {
-		return httperror.FromAppError(c, err.(*apperror.AppError))
-	}
-
-	return c.Status(http.StatusOK).JSON(created)
 }
 
 // UpdateUser godoc

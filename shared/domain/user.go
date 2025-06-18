@@ -47,12 +47,6 @@ func NewUserFromProto(user *userv1.User) *User {
 	}
 }
 
-type CreateUserRequest struct {
-	FullName string `json:"full_name" validate:"required"       example:"John Doe"         extensions:"x-order=1"`
-	Email    string `json:"email"     validate:"required,email" example:"john@example.com" extensions:"x-order=2"`
-	Password string `json:"password"  validate:"required"       example:"securepassword"   extensions:"x-order=3"`
-}
-
 type UpdateUserRequest struct {
 	FullName     *string `json:"full_name"     example:"John Doe"         extensions:"x-order=1"`
 	Email        *string `json:"email"         example:"john@example.com" extensions:"x-order=2" validate:"omitempty,email"`
