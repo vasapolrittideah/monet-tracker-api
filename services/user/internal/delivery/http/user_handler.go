@@ -195,8 +195,17 @@ func (h *userHTTPHandler) UpdateUser(c *fiber.Ctx) error {
 	if req.Email != nil {
 		user.Email = *req.Email
 	}
+	if req.Password != nil {
+		user.Password = *req.Password
+	}
 	if req.Verified != nil {
 		user.Verified = *req.Verified
+	}
+	if req.Registered != nil {
+		user.Registered = *req.Registered
+	}
+	if req.RefreshToken != nil {
+		user.RefreshToken = *req.RefreshToken
 	}
 
 	updated, err := h.usecase.UpdateUser(user)

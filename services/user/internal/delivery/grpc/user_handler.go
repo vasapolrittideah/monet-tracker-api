@@ -96,11 +96,14 @@ func (c *userGRPCHandler) UpdateUser(
 	if req.Email != nil {
 		user.Email = req.Email.GetValue()
 	}
+	if req.Password != nil {
+		user.Password = req.Password.GetValue()
+	}
 	if req.Verified != nil {
 		user.Verified = req.Verified.GetValue()
 	}
-	if req.Password != nil {
-		user.Password = req.Password.GetValue()
+	if req.Registered != nil {
+		user.Registered = req.Registered.GetValue()
 	}
 	if req.RefreshToken != nil {
 		user.RefreshToken = req.RefreshToken.GetValue()

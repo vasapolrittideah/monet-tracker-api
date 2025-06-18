@@ -12,10 +12,11 @@ type User struct {
 	FullName     string    `json:"full_name"  gorm:"not null;type:varchar(100)" example:"John Doe"             extensions:"x-order=2"`
 	Email        string    `json:"email"      gorm:"not null;uniqueIndex"       example:"john@example.com"     extensions:"x-order=3"`
 	Verified     bool      `json:"verified"   gorm:"not null;default:false"     example:"true"                 extensions:"x-order=4"`
+	Registered   bool      `json:"registered" gorm:"not null;default:false"     example:"true"                 extensions:"x-order=5"`
 	Password     string    `json:"-"          gorm:"not null"`
 	RefreshToken string    `json:"-"`
-	CreatedAt    time.Time `json:"created_at" gorm:"autoCreateTime"             example:"2022-01-01T00:00:00Z" extensions:"x-order=5"`
-	UpdatedAt    time.Time `json:"updated_at" gorm:"autoUpdateTime"             example:"2022-01-01T00:00:00Z" extensions:"x-order=6"`
+	CreatedAt    time.Time `json:"created_at" gorm:"autoCreateTime"             example:"2022-01-01T00:00:00Z" extensions:"x-order=6"`
+	UpdatedAt    time.Time `json:"updated_at" gorm:"autoUpdateTime"             example:"2022-01-01T00:00:00Z" extensions:"x-order=7"`
 }
 
 func (u *User) ToProto() *userv1.User {
@@ -24,6 +25,7 @@ func (u *User) ToProto() *userv1.User {
 		FullName:     u.FullName,
 		Email:        u.Email,
 		Verified:     u.Verified,
+		Registered:   u.Registered,
 		Password:     u.Password,
 		RefreshToken: u.RefreshToken,
 		CreatedAt:    timestamppb.New(u.CreatedAt),
@@ -37,6 +39,7 @@ func NewUserFromProto(user *userv1.User) *User {
 		FullName:     user.FullName,
 		Email:        user.Email,
 		Verified:     user.Verified,
+		Registered:   user.Registered,
 		Password:     user.Password,
 		RefreshToken: user.RefreshToken,
 		CreatedAt:    user.CreatedAt.AsTime(),
@@ -51,9 +54,12 @@ type CreateUserRequest struct {
 }
 
 type UpdateUserRequest struct {
-	FullName *string `json:"full_name" example:"John Doe"         extensions:"x-order=1"`
-	Email    *string `json:"email"     example:"john@example.com" extensions:"x-order=2" validate:"omitempty,email"`
-	Verified *bool   `json:"verified"  example:"true"             extensions:"x-order=3"`
+	FullName     *string `json:"full_name"     example:"John Doe"         extensions:"x-order=1"`
+	Email        *string `json:"email"         example:"john@example.com" extensions:"x-order=2" validate:"omitempty,email"`
+	Password     *string `json:"password"      example:"securepassword"   extensions:"x-order=3"`
+	Verified     *bool   `json:"verified"      example:"true"             extensions:"x-order=4"`
+	Registered   *bool   `json:"registered"    example:"true"             extensions:"x-order=5"`
+	RefreshToken *string `json:"refresh_token" example:"refresh_token"    extensions:"x-order=6"`
 }
 
 type UserUsecase interface {
