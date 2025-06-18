@@ -11,7 +11,7 @@ import (
 	v "github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
 	th_translations "github.com/go-playground/validator/v10/translations/th"
-	"github.com/vasapolrittideah/money-tracker-api/shared/httperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/errors/httperror"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -56,7 +56,7 @@ func getLang(ctx context.Context) string {
 	return "en"
 }
 
-func ValidateInput(ctx context.Context, input any) *httperror.HTTPValidationError {
+func ValidateInput(ctx context.Context, input any) []httperror.ValidationError {
 	err := val.Struct(input)
 	if err == nil {
 		return nil
@@ -73,7 +73,5 @@ func ValidateInput(ctx context.Context, input any) *httperror.HTTPValidationErro
 		})
 	}
 
-	res := httperror.NewValidationError(details)
-
-	return &res
+	return details
 }

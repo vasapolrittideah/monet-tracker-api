@@ -6,8 +6,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
-	"github.com/vasapolrittideah/money-tracker-api/shared/httperror"
-	"google.golang.org/grpc/codes"
+	"github.com/vasapolrittideah/money-tracker-api/shared/errors/apperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/errors/httperror"
 )
 
 type oauthGoogleHTTPHandler struct {
@@ -35,19 +35,17 @@ func (c *oauthGoogleHTTPHandler) RegisterRoutes() {
 	router.Get("/google/callback", c.HandleGoogleCallback)
 }
 
-func (c *oauthGoogleHTTPHandler) SignInWithGoogle(ctx *fiber.Ctx) error {
-	url := c.usecase.GetSignInWithGoogleURL("state-token")
-	return ctx.Redirect(url, fiber.StatusTemporaryRedirect)
+func (h *oauthGoogleHTTPHandler) SignInWithGoogle(c *fiber.Ctx) error {
+	url := h.usecase.GetSignInWithGoogleURL("state-token")
+	return c.Redirect(url, fiber.StatusTemporaryRedirect)
 }
 
-func (c *oauthGoogleHTTPHandler) HandleGoogleCallback(ctx *fiber.Ctx) error {
-	code := ctx.Query("code")
-	token, err := c.usecase.HandleGoogleCallback(code)
+func (h *oauthGoogleHTTPHandler) HandleGoogleCallback(c *fiber.Ctx) error {
+	code := c.Query("code")
+	token, err := h.usecase.HandleGoogleCallback(code)
 	if err != nil {
-		return ctx.Status(http.StatusInternalServerError).JSON(
-			httperror.NewHTTPError(codes.Internal, err.Error()),
-		)
+		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(token)
+	return c.Status(http.StatusOK).JSON(token)
 }

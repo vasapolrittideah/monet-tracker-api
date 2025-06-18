@@ -7,10 +7,10 @@ import (
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
+	"github.com/vasapolrittideah/money-tracker-api/shared/errors/apperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/errors/grpcerror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/utils/hashutil"
 	"github.com/vasapolrittideah/money-tracker-api/shared/utils/tokenutil"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -42,8 +42,7 @@ func (u *authUsecase) SignUp(req *domain.SignUpRequest) (*domain.User, error) {
 		Password: newUser.Password,
 	})
 	if err != nil {
-		st := status.Convert(err)
-		return nil, status.Errorf(st.Code(), "failed to create user: %s", st.Message())
+		return nil, grpcerror.ToAppError(err)
 	}
 
 	return domain.NewUserFromProto(res.User), nil
@@ -57,32 +56,30 @@ func (u *authUsecase) SignIn(req *domain.SignInRequest) (*domain.Token, error) {
 		Email: req.Email,
 	})
 	if err != nil {
-		st := status.Convert(err)
-		return nil, status.Errorf(st.Code(), "failed to get user: %s", st.Message())
+		return nil, grpcerror.ToAppError(err)
 	}
 
 	user := domain.NewUserFromProto(res.User)
 
 	if ok, err := hashutil.Verify(req.Password, user.Password); err != nil || !ok {
-		return nil, status.Errorf(codes.Unauthenticated, "invalid password")
+		return nil, apperror.NewError(apperror.ErrUnauthenticated, "invalid password")
 	}
 
 	token, err := generateTokens(user.ID, &u.config.JWT)
 	if err != nil {
-		return nil, err
+		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
 	}
 
 	hashedRefreshToken, err := hashutil.Hash(token.RefreshToken)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "unable to hash refresh token: %v", err)
+		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
 	}
 
 	if _, err = u.userClient.UpdateUser(ctx, &userpbv1.UpdateUserRequest{
 		Id:           user.ID,
 		RefreshToken: wrapperspb.String(hashedRefreshToken),
 	}); err != nil {
-		st := status.Convert(err)
-		return nil, status.Errorf(st.Code(), "failed to update user: %s", st.Message())
+		return nil, grpcerror.ToAppError(err)
 	}
 
 	return token, nil
@@ -95,7 +92,7 @@ func generateTokens(userID uint64, jwtConfig *config.JWTConfig) (*domain.Token, 
 		userID,
 	)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to generate access token: %v", err)
+		return nil, err
 	}
 
 	refreshToken, err := tokenutil.GenerateToken(
@@ -104,7 +101,7 @@ func generateTokens(userID uint64, jwtConfig *config.JWTConfig) (*domain.Token, 
 		userID,
 	)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to generate refresh token: %v", err)
+		return nil, err
 	}
 
 	return &domain.Token{

@@ -8,10 +8,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
-	"github.com/vasapolrittideah/money-tracker-api/shared/httperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/errors/apperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/errors/httperror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/validator"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type userHTTPHandler struct {
@@ -32,15 +31,15 @@ func NewUserHTTPHandler(
 	}
 }
 
-func (c *userHTTPHandler) RegisterRoutes() {
-	router := c.router.Group("/users")
+func (h *userHTTPHandler) RegisterRoutes() {
+	router := h.router.Group("/users")
 
-	router.Get("/", c.GetAllUsers)
-	router.Get("/:id", c.GetUserByID)
-	router.Get("/email/:email", c.GetUserByEmail)
-	router.Post("/", c.CreateUser)
-	router.Put("/:id", c.UpdateUser)
-	router.Delete("/:id", c.DeleteUser)
+	router.Get("/", h.GetAllUsers)
+	router.Get("/:id", h.GetUserByID)
+	router.Get("/email/:email", h.GetUserByEmail)
+	router.Post("/", h.CreateUser)
+	router.Put("/:id", h.UpdateUser)
+	router.Delete("/:id", h.DeleteUser)
 }
 
 // GetAllUsers godoc
@@ -53,16 +52,13 @@ func (c *userHTTPHandler) RegisterRoutes() {
 // @Failure 404 {object} httperror.HTTPError "Not Found"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users [get]
-func (c *userHTTPHandler) GetAllUsers(ctx *fiber.Ctx) error {
-	users, err := c.usecase.GetAllUsers()
+func (h *userHTTPHandler) GetAllUsers(c *fiber.Ctx) error {
+	users, err := h.usecase.GetAllUsers()
 	if err != nil {
-		st := status.Convert(err)
-		return ctx.Status(httperror.HTTPStatusFromCode(st.Code())).JSON(
-			httperror.NewHTTPError(st.Code(), st.Message()),
-		)
+		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(users)
+	return c.Status(http.StatusOK).JSON(users)
 }
 
 // GetUserByID godoc
@@ -77,25 +73,20 @@ func (c *userHTTPHandler) GetAllUsers(ctx *fiber.Ctx) error {
 // @Failure 404 {object} httperror.HTTPError "Not Found"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users/{id} [get]
-func (c *userHTTPHandler) GetUserByID(ctx *fiber.Ctx) error {
-	idParam := ctx.Params("id")
+func (h *userHTTPHandler) GetUserByID(c *fiber.Ctx) error {
+	idParam := c.Params("id")
 
 	id, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(
-			httperror.NewHTTPError(codes.InvalidArgument, "invalid user id format"),
-		)
+		return httperror.NewBadRequestError(c, "invalid user id format")
 	}
 
-	user, err := c.usecase.GetUserByID(id)
+	user, err := h.usecase.GetUserByID(id)
 	if err != nil {
-		st := status.Convert(err)
-		return ctx.Status(httperror.HTTPStatusFromCode(st.Code())).JSON(
-			httperror.NewHTTPError(st.Code(), st.Message()),
-		)
+		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(user)
+	return c.Status(http.StatusOK).JSON(user)
 }
 
 // GetUserByEmail godoc
@@ -110,25 +101,20 @@ func (c *userHTTPHandler) GetUserByID(ctx *fiber.Ctx) error {
 // @Failure 404 {object} httperror.HTTPError "Not Found"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users/email/{email} [get]
-func (c *userHTTPHandler) GetUserByEmail(ctx *fiber.Ctx) error {
-	email := ctx.Params("email")
+func (h *userHTTPHandler) GetUserByEmail(c *fiber.Ctx) error {
+	email := c.Params("email")
 
 	_, err := mail.ParseAddress(email)
 	if err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(
-			httperror.NewHTTPError(codes.InvalidArgument, "invalid email format"),
-		)
+		return httperror.NewBadRequestError(c, "invalid email format")
 	}
 
-	user, err := c.usecase.GetUserByEmail(email)
+	user, err := h.usecase.GetUserByEmail(email)
 	if err != nil {
-		st := status.Convert(err)
-		return ctx.Status(httperror.HTTPStatusFromCode(st.Code())).JSON(
-			httperror.NewHTTPError(st.Code(), st.Message()),
-		)
+		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(user)
+	return c.Status(http.StatusOK).JSON(user)
 }
 
 // CreateUser godoc
@@ -143,20 +129,15 @@ func (c *userHTTPHandler) GetUserByEmail(ctx *fiber.Ctx) error {
 // @Failure 409 {object} httperror.HTTPError "Conflict"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users [post]
-func (c *userHTTPHandler) CreateUser(ctx *fiber.Ctx) error {
+func (h *userHTTPHandler) CreateUser(c *fiber.Ctx) error {
 	var req domain.CreateUserRequest
 
-	if err := ctx.BodyParser(&req); err != nil {
-		st := status.Convert(err)
-		return ctx.Status(http.StatusBadGateway).JSON(
-			httperror.NewHTTPError(codes.InvalidArgument, st.Message()),
-		)
+	if err := c.BodyParser(&req); err != nil {
+		return httperror.NewBadRequestError(c, err.Error())
 	}
 
-	if err := validator.ValidateInput(ctx.Context(), req); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(
-			httperror.NewValidationError(err.Details),
-		)
+	if err := validator.ValidateInput(c.Context(), req); err != nil {
+		return httperror.NewValidationError(c, err)
 	}
 
 	user := domain.User{
@@ -165,15 +146,12 @@ func (c *userHTTPHandler) CreateUser(ctx *fiber.Ctx) error {
 		Password: req.Password,
 	}
 
-	createdUser, err := c.usecase.CreateUser(&user)
+	created, err := h.usecase.CreateUser(&user)
 	if err != nil {
-		st := status.Convert(err)
-		return ctx.Status(httperror.HTTPStatusFromCode(st.Code())).JSON(
-			httperror.NewHTTPError(st.Code(), st.Message()),
-		)
+		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(createdUser)
+	return c.Status(http.StatusOK).JSON(created)
 }
 
 // UpdateUser godoc
@@ -189,36 +167,26 @@ func (c *userHTTPHandler) CreateUser(ctx *fiber.Ctx) error {
 // @Failure 404 {object} httperror.HTTPError "Not Found"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users/{id} [put]
-func (c *userHTTPHandler) UpdateUser(ctx *fiber.Ctx) error {
-	idParam := ctx.Params("id")
+func (h *userHTTPHandler) UpdateUser(c *fiber.Ctx) error {
+	idParam := c.Params("id")
 
 	id, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(
-			httperror.NewHTTPError(codes.InvalidArgument, "invalid user id format"),
-		)
+		return httperror.NewBadRequestError(c, "invalid user id format")
 	}
 
 	var req domain.UpdateUserRequest
-	if err := ctx.BodyParser(&req); err != nil {
-		st := status.Convert(err)
-		return ctx.Status(http.StatusBadGateway).JSON(
-			httperror.NewHTTPError(codes.InvalidArgument, st.Message()),
-		)
+	if err := c.BodyParser(&req); err != nil {
+		return httperror.NewBadRequestError(c, err.Error())
 	}
 
-	if err := validator.ValidateInput(ctx.Context(), req); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(
-			httperror.NewValidationError(err.Details),
-		)
+	if err := validator.ValidateInput(c.Context(), req); err != nil {
+		return httperror.NewValidationError(c, err)
 	}
 
-	user, err := c.usecase.GetUserByID(id)
+	user, err := h.usecase.GetUserByID(id)
 	if err != nil {
-		st := status.Convert(err)
-		return ctx.Status(httperror.HTTPStatusFromCode(st.Code())).JSON(
-			httperror.NewHTTPError(st.Code(), st.Message()),
-		)
+		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
 
 	if req.FullName != nil {
@@ -231,15 +199,12 @@ func (c *userHTTPHandler) UpdateUser(ctx *fiber.Ctx) error {
 		user.Verified = *req.Verified
 	}
 
-	updatedUser, err := c.usecase.UpdateUser(user)
+	updated, err := h.usecase.UpdateUser(user)
 	if err != nil {
-		st := status.Convert(err)
-		return ctx.Status(httperror.HTTPStatusFromCode(st.Code())).JSON(
-			httperror.NewHTTPError(st.Code(), st.Message()),
-		)
+		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(updatedUser)
+	return c.Status(http.StatusOK).JSON(updated)
 }
 
 // DeleteUser godoc
@@ -254,23 +219,18 @@ func (c *userHTTPHandler) UpdateUser(ctx *fiber.Ctx) error {
 // @Failure 404 {object} httperror.HTTPError "Not Found"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users/{id} [delete]
-func (c *userHTTPHandler) DeleteUser(ctx *fiber.Ctx) error {
-	idParam := ctx.Params("id")
+func (h *userHTTPHandler) DeleteUser(c *fiber.Ctx) error {
+	idParam := c.Params("id")
 
 	id, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(
-			httperror.NewHTTPError(codes.InvalidArgument, "invalid user id format"),
-		)
+		return httperror.NewBadRequestError(c, "invalid user id format")
 	}
 
-	deletedUser, err := c.usecase.DeleteUser(id)
+	deleted, err := h.usecase.DeleteUser(id)
 	if err != nil {
-		st := status.Convert(err)
-		return ctx.Status(httperror.HTTPStatusFromCode(st.Code())).JSON(
-			httperror.NewHTTPError(st.Code(), st.Message()),
-		)
+		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(deletedUser)
+	return c.Status(http.StatusOK).JSON(deleted)
 }

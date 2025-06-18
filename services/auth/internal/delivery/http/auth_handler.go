@@ -6,10 +6,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
-	"github.com/vasapolrittideah/money-tracker-api/shared/httperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/errors/apperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/errors/httperror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/validator"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type authHTTPHandler struct {
@@ -45,30 +44,23 @@ func (c *authHTTPHandler) RegisterRoutes() {
 // @Failure 409 {object} httperror.HTTPError "Conflict"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /auth/sign-up [post]
-func (c *authHTTPHandler) SignUp(ctx *fiber.Ctx) error {
+func (h *authHTTPHandler) SignUp(c *fiber.Ctx) error {
 	req := new(domain.SignUpRequest)
 
-	if err := ctx.BodyParser(req); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(
-			httperror.NewHTTPError(codes.InvalidArgument, err.Error()),
-		)
+	if err := c.BodyParser(req); err != nil {
+		return httperror.NewBadRequestError(c, err.Error())
 	}
 
-	if err := validator.ValidateInput(ctx.Context(), req); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(
-			httperror.NewValidationError(err.Details),
-		)
+	if err := validator.ValidateInput(c.Context(), req); err != nil {
+		return httperror.NewValidationError(c, err)
 	}
 
-	user, err := c.usecase.SignUp(req)
+	user, err := h.usecase.SignUp(req)
 	if err != nil {
-		st := status.Convert(err)
-		return ctx.Status(httperror.HTTPStatusFromCode(st.Code())).JSON(
-			httperror.NewHTTPError(st.Code(), st.Message()),
-		)
+		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(user)
+	return c.Status(http.StatusOK).JSON(user)
 }
 
 // SignIn godoc
@@ -83,28 +75,21 @@ func (c *authHTTPHandler) SignUp(ctx *fiber.Ctx) error {
 // @Failure 401 {object} httperror.HTTPError "Unauthorized"
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /auth/sign-in [post]
-func (c *authHTTPHandler) SignIn(ctx *fiber.Ctx) error {
+func (h *authHTTPHandler) SignIn(c *fiber.Ctx) error {
 	req := new(domain.SignInRequest)
 
-	if err := ctx.BodyParser(req); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(
-			httperror.NewHTTPError(codes.InvalidArgument, err.Error()),
-		)
+	if err := c.BodyParser(req); err != nil {
+		return httperror.NewBadRequestError(c, err.Error())
 	}
 
-	if err := validator.ValidateInput(ctx.Context(), req); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(
-			httperror.NewValidationError(err.Details),
-		)
+	if err := validator.ValidateInput(c.Context(), req); err != nil {
+		return httperror.NewValidationError(c, err)
 	}
 
-	token, err := c.usecase.SignIn(req)
+	token, err := h.usecase.SignIn(req)
 	if err != nil {
-		st := status.Convert(err)
-		return ctx.Status(httperror.HTTPStatusFromCode(st.Code())).JSON(
-			httperror.NewHTTPError(st.Code(), st.Message()),
-		)
+		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
 
-	return ctx.Status(http.StatusOK).JSON(token)
+	return c.Status(http.StatusOK).JSON(token)
 }

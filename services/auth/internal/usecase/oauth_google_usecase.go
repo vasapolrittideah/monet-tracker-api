@@ -3,17 +3,18 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
+	"github.com/vasapolrittideah/money-tracker-api/shared/errors/apperror"
+	"github.com/vasapolrittideah/money-tracker-api/shared/errors/grpcerror"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	googleOAuth "google.golang.org/api/oauth2/v2"
 	"google.golang.org/api/option"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
@@ -61,16 +62,21 @@ func (u *oauthGoogleUsecase) HandleGoogleCallback(code string) (*domain.Token, e
 
 	userInfo, err := getGoogleUserInfo(code, u.oauthGoogleConfig)
 	if err != nil {
-		return nil, err
+		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
 	}
 
 	externalAuth, err := u.authRepo.GetExternalAuthByProviderID(userInfo.Id)
 	if err == nil {
-		return generateTokens(externalAuth.UserID, &u.config.JWT)
+		token, err := generateTokens(externalAuth.UserID, &u.config.JWT)
+		if err != nil {
+			return nil, apperror.NewError(apperror.ErrInternal, err.Error())
+		}
+
+		return token, nil
 	}
 
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, status.Errorf(codes.NotFound, "failed to get external auth: %v", err)
+		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
 	}
 
 	res, err := u.userClient.GetUserByEmail(ctx, &userpbv1.GetUserByEmailRequest{
@@ -79,9 +85,9 @@ func (u *oauthGoogleUsecase) HandleGoogleCallback(code string) (*domain.Token, e
 
 	var userID uint64
 	if err != nil {
-		st := status.Convert(err)
-		if st.Code() != codes.NotFound {
-			return nil, status.Error(st.Code(), st.Err().Error())
+		appErr := grpcerror.ToAppError(err).(*apperror.AppError)
+		if appErr.Code != apperror.ErrNotFound {
+			return nil, appErr
 		}
 
 		_, err := u.userClient.CreateUser(ctx, &userpbv1.CreateUserRequest{
@@ -90,11 +96,10 @@ func (u *oauthGoogleUsecase) HandleGoogleCallback(code string) (*domain.Token, e
 			Password: "",
 		})
 		if err != nil {
-			st := status.Convert(err)
-			return nil, status.Error(st.Code(), st.Err().Error())
+			return nil, grpcerror.ToAppError(err)
 		}
 
-		return nil, status.Error(codes.NotFound, "user not register yet")
+		return nil, apperror.NewError(apperror.ErrNotFound, "user not register yet")
 	} else {
 		userID = res.User.Id
 	}
@@ -108,24 +113,29 @@ func (u *oauthGoogleUsecase) HandleGoogleCallback(code string) (*domain.Token, e
 		return nil, err
 	}
 
-	return generateTokens(userID, &u.config.JWT)
+	token, err := generateTokens(userID, &u.config.JWT)
+	if err != nil {
+		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
+	}
+
+	return token, nil
 }
 
 func getGoogleUserInfo(code string, config *oauth2.Config) (*googleOAuth.Userinfo, error) {
 	token, err := config.Exchange(context.Background(), code)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to exchange token: %v", err)
+		return nil, fmt.Errorf("failed to exchange token: %v", err)
 	}
 
 	client := config.Client(context.Background(), token)
 	svc, err := googleOAuth.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to create google service: %v", err)
+		return nil, fmt.Errorf("failed to create service: %v", err)
 	}
 
 	userInfo, err := svc.Userinfo.Get().Do()
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to get user info: %v", err)
+		return nil, fmt.Errorf("failed to get user info from Google: %v", err)
 	}
 
 	return userInfo, nil

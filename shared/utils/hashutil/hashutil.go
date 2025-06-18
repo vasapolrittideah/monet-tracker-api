@@ -1,16 +1,16 @@
 package hashutil
 
 import (
+	"fmt"
+
 	"github.com/matthewhartstonge/argon2"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func Hash(input string) (string, error) {
 	argon := argon2.DefaultConfig()
 	encoded, err := argon.HashEncoded([]byte(input))
 	if err != nil {
-		return "", status.Errorf(codes.Internal, "unable to hash input: %v", err.Error())
+		return "", fmt.Errorf("failed to hash input: %v", err.Error())
 	}
 
 	return string(encoded), nil
