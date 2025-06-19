@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"time"
 
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
@@ -26,10 +25,7 @@ func NewAuthUsecase(userClient userpbv1.UserServiceClient, config *config.Config
 	}
 }
 
-func (u *authUsecase) SignUp(req *domain.SignUpRequest) (*domain.User, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
+func (u *authUsecase) SignUp(ctx context.Context, req *domain.SignUpRequest) (*domain.User, error) {
 	newUser := domain.User{
 		FullName: req.FullName,
 		Email:    req.Email,
@@ -56,10 +52,7 @@ func (u *authUsecase) SignUp(req *domain.SignUpRequest) (*domain.User, error) {
 	return domain.NewUserFromProto(res.User), nil
 }
 
-func (u *authUsecase) SignIn(req *domain.SignInRequest) (*domain.Token, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
+func (u *authUsecase) SignIn(ctx context.Context, req *domain.SignInRequest) (*domain.Token, error) {
 	res, err := u.userClient.GetUserByEmail(ctx, &userpbv1.GetUserByEmailRequest{
 		Email: req.Email,
 	})

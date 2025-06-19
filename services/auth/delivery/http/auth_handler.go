@@ -55,7 +55,7 @@ func (h *authHTTPHandler) SignUp(c *fiber.Ctx) error {
 		return httperror.NewValidationError(c, err)
 	}
 
-	user, err := h.usecase.SignUp(req)
+	user, err := h.usecase.SignUp(c.Context(), req)
 	if err != nil {
 		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
@@ -86,7 +86,7 @@ func (h *authHTTPHandler) SignIn(c *fiber.Ctx) error {
 		return httperror.NewValidationError(c, err)
 	}
 
-	token, err := h.usecase.SignIn(req)
+	token, err := h.usecase.SignIn(c.Context(), req)
 	if err != nil {
 		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}

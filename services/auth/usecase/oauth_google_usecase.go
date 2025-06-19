@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
@@ -56,17 +55,14 @@ func (u *oauthGoogleUsecase) GetSignInWithGoogleURL(state string) string {
 	return u.oauthGoogleConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
 }
 
-func (u *oauthGoogleUsecase) HandleGoogleCallback(code string) (*domain.Token, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
+func (u *oauthGoogleUsecase) HandleGoogleCallback(ctx context.Context, code string) (*domain.Token, error) {
 	userInfo, err := getGoogleUserInfo(code, u.oauthGoogleConfig)
 	if err != nil {
 		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
 	}
 
 	// Check if Google account already linked
-	externalAuth, err := u.authRepo.GetExternalAuthByProviderID(userInfo.Id)
+	externalAuth, err := u.authRepo.GetExternalAuthByProviderID(ctx, userInfo.Id)
 	if err == nil {
 		// Google account already linked, generate tokens
 		token, err := generateTokens(externalAuth.UserID, &u.config.JWT)
@@ -110,7 +106,7 @@ func (u *oauthGoogleUsecase) HandleGoogleCallback(code string) (*domain.Token, e
 	}
 
 	// Link Google account to local user
-	_, err = u.authRepo.CreateExternalAuth(&domain.ExternalAuth{
+	_, err = u.authRepo.CreateExternalAuth(ctx, &domain.ExternalAuth{
 		ProviderID: userInfo.Id,
 		Provider:   "GOOGLE",
 		UserID:     userID,

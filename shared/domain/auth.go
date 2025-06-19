@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type ExternalAuth struct {
 	ID         uint64 `json:"id"         gorm:"primaryKey;autoIncrement"`
@@ -30,18 +33,18 @@ type SignInRequest struct {
 }
 
 type AuthRepository interface {
-	GetExternalAuthByProviderID(providerID string) (*ExternalAuth, error)
-	CreateExternalAuth(externalAuth *ExternalAuth) (*ExternalAuth, error)
-	UpdateExternalAuth(id uint64, externalAuth *ExternalAuth) (*ExternalAuth, error)
-	DeleteExternalAuth(id uint64) (*ExternalAuth, error)
+	GetExternalAuthByProviderID(ctx context.Context, providerID string) (*ExternalAuth, error)
+	CreateExternalAuth(ctx context.Context, externalAuth *ExternalAuth) (*ExternalAuth, error)
+	UpdateExternalAuth(ctx context.Context, id uint64, externalAuth *ExternalAuth) (*ExternalAuth, error)
+	DeleteExternalAuth(ctx context.Context, id uint64) (*ExternalAuth, error)
 }
 
 type AuthUsecase interface {
-	SignUp(req *SignUpRequest) (*User, error)
-	SignIn(req *SignInRequest) (*Token, error)
+	SignUp(ctx context.Context, req *SignUpRequest) (*User, error)
+	SignIn(ctx context.Context, req *SignInRequest) (*Token, error)
 }
 
 type OAuthGoogleUsecase interface {
-	HandleGoogleCallback(code string) (*Token, error)
 	GetSignInWithGoogleURL(state string) string
+	HandleGoogleCallback(ctx context.Context, code string) (*Token, error)
 }
