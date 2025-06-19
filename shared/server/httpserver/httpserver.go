@@ -3,12 +3,10 @@ package httpserver
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
@@ -23,11 +21,6 @@ type HTTPServer struct {
 func (s *HTTPServer) Start() error {
 	s.app = fiber.New()
 
-	loggerConfig := logger.Config{
-		TimeFormat: time.RFC1123Z,
-		TimeZone:   "Asia/Bangkok",
-	}
-
 	corsConfig := cors.Config{
 		AllowOrigins: "*",
 		AllowHeaders: "Origin, Content-Type, Accept",
@@ -41,9 +34,20 @@ func (s *HTTPServer) Start() error {
 
 	s.app.Use(
 		recover.New(),
-		logger.New(loggerConfig),
 		cors.New(corsConfig),
 	)
+
+	s.app.Use(func(c *fiber.Ctx) error {
+		err := c.Next()
+
+		log.Info("request",
+			"method", c.Method(),
+			"path", c.Path(),
+			"status", c.Response().StatusCode(),
+		)
+
+		return err
+	})
 
 	if s.RouteRegistrar != nil {
 		s.RouteRegistrar(s.app)
