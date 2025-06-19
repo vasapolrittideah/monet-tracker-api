@@ -14,28 +14,28 @@ type ServiceRegistrar func(server *grpc.Server)
 
 type GRPCServer struct {
 	Addr             string
-	Server           *grpc.Server
 	ServiceRegistrar ServiceRegistrar
+	server           *grpc.Server
 }
 
 func (s *GRPCServer) Start() error {
+	s.server = grpc.NewServer()
+	if s.ServiceRegistrar != nil {
+		s.ServiceRegistrar(s.server)
+	}
+
 	lis, err := net.Listen("tcp", s.Addr)
 	if err != nil {
 		return fmt.Errorf("failed to listen on %s: %v", s.Addr, err)
 	}
 
-	s.Server = grpc.NewServer()
-	if s.ServiceRegistrar != nil {
-		s.ServiceRegistrar(s.Server)
-	}
-
 	healthServer := health.NewServer()
-	grpc_health_v1.RegisterHealthServer(s.Server, healthServer)
+	grpc_health_v1.RegisterHealthServer(s.server, healthServer)
 	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
 
 	log.Infof("🚀 gRPC server started on %s", s.Addr)
 
-	if err := s.Server.Serve(lis); err != nil {
+	if err := s.server.Serve(lis); err != nil {
 		return fmt.Errorf("failed to serve grpc server: %v", err)
 	}
 
@@ -43,6 +43,6 @@ func (s *GRPCServer) Start() error {
 }
 
 func (s *GRPCServer) Stop() error {
-	s.Server.GracefulStop()
+	s.server.GracefulStop()
 	return nil
 }

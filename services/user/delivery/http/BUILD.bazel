@@ -1,0 +1,16 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "http",
+    srcs = ["user_handler.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/user/delivery/http",
+    visibility = ["//services/user:__subpackages__"],
+    deps = [
+        "//shared/config",
+        "//shared/domain",
+        "//shared/errors/apperror",
+        "//shared/errors/httperror",
+        "//shared/validator",
+        "@com_github_gofiber_fiber_v2//:fiber",
+    ],
+)

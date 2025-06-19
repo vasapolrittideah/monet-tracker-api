@@ -1,0 +1,28 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "user_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/user",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//protogen/user/v1:user",
+        "//services/user/delivery/grpc",
+        "//services/user/delivery/http",
+        "//services/user/repository",
+        "//services/user/usecase",
+        "//shared/bootstrap",
+        "//shared/config",
+        "//shared/database",
+        "//shared/validator",
+        "@com_github_gofiber_fiber_v2//:fiber",
+        "@org_golang_google_grpc//:grpc",
+    ],
+)
+
+go_binary(
+    name = "user",
+    data = ["//:env"],
+    embed = [":user_lib"],
+    visibility = ["//visibility:public"],
+)

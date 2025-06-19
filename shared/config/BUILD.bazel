@@ -1,0 +1,14 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "config",
+    srcs = ["config.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/shared/config",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_caarlos0_env_v11//:env",
+        "@com_github_charmbracelet_log//:log",
+        "@com_github_joho_godotenv//:godotenv",
+        "@rules_go//go/runfiles",
+    ],
+)

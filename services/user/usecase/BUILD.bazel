@@ -1,0 +1,15 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "usecase",
+    srcs = ["user_usecase.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/user/usecase",
+    visibility = ["//services/user:__subpackages__"],
+    deps = [
+        "//shared/config",
+        "//shared/domain",
+        "//shared/errors/apperror",
+        "//shared/utils/hashutil",
+        "@io_gorm_gorm//:gorm",
+    ],
+)

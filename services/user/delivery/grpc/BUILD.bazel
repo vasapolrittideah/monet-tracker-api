@@ -1,0 +1,14 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "grpc",
+    srcs = ["user_handler.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/user/delivery/grpc",
+    visibility = ["//services/user:__subpackages__"],
+    deps = [
+        "//protogen/user/v1:user",
+        "//shared/config",
+        "//shared/domain",
+        "@com_github_charmbracelet_log//:log",
+    ],
+)

@@ -1,0 +1,14 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "grpcserver",
+    srcs = ["grpcserver.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/shared/server/grpcserver",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_charmbracelet_log//:log",
+        "@org_golang_google_grpc//:grpc",
+        "@org_golang_google_grpc//health",
+        "@org_golang_google_grpc//health/grpc_health_v1",
+    ],
+)

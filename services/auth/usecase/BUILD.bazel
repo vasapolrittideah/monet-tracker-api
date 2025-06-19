@@ -1,0 +1,26 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "usecase",
+    srcs = [
+        "auth_usecase.go",
+        "oauth_google_usecase.go",
+    ],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/auth/usecase",
+    visibility = ["//services/auth:__subpackages__"],
+    deps = [
+        "//protogen/user/v1:user",
+        "//shared/config",
+        "//shared/domain",
+        "//shared/errors/apperror",
+        "//shared/errors/grpcerror",
+        "//shared/utils/hashutil",
+        "//shared/utils/tokenutil",
+        "@io_gorm_gorm//:gorm",
+        "@org_golang_google_api//oauth2/v2:oauth2",
+        "@org_golang_google_api//option",
+        "@org_golang_google_protobuf//types/known/wrapperspb",
+        "@org_golang_x_oauth2//:oauth2",
+        "@org_golang_x_oauth2//google",
+    ],
+)

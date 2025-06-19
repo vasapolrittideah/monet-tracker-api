@@ -1,0 +1,12 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "httperror",
+    srcs = ["httperror.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/shared/errors/httperror",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//shared/errors/apperror",
+        "@com_github_gofiber_fiber_v2//:fiber",
+    ],
+)

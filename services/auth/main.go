@@ -5,9 +5,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
-	httphandler "github.com/vasapolrittideah/money-tracker-api/services/auth/internal/delivery/http"
-	"github.com/vasapolrittideah/money-tracker-api/services/auth/internal/repository"
-	"github.com/vasapolrittideah/money-tracker-api/services/auth/internal/usecase"
+	httphandler "github.com/vasapolrittideah/money-tracker-api/services/auth/delivery/http"
+	"github.com/vasapolrittideah/money-tracker-api/services/auth/repository"
+	"github.com/vasapolrittideah/money-tracker-api/services/auth/usecase"
 	"github.com/vasapolrittideah/money-tracker-api/shared/bootstrap"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/database"

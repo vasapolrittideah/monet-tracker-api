@@ -3,6 +3,7 @@ module github.com/vasapolrittideah/money-tracker-api
 go 1.24.3
 
 require (
+	github.com/bazelbuild/rules_go v0.55.1
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/charmbracelet/log v0.4.2
 	github.com/go-playground/locales v0.14.1
@@ -11,11 +12,12 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.8
 	github.com/gofiber/swagger v1.1.1
 	github.com/golang-jwt/jwt/v4 v4.5.2
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
 	github.com/hashicorp/consul/api v1.32.1
 	github.com/joho/godotenv v1.5.1
 	github.com/matthewhartstonge/argon2 v1.3.1
 	github.com/swaggo/swag/v2 v2.0.0-rc4
+	golang.org/x/oauth2 v0.30.0
+	google.golang.org/api v0.237.0
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
 	gorm.io/driver/postgres v1.5.11
@@ -91,12 +93,10 @@ require (
 	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/net v0.41.0 // indirect
-	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sync v0.15.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
 	golang.org/x/tools v0.34.0 // indirect
-	google.golang.org/api v0.237.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

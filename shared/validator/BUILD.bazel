@@ -1,0 +1,19 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "validator",
+    srcs = ["validator.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/shared/validator",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//shared/errors/httperror",
+        "@com_github_charmbracelet_log//:log",
+        "@com_github_go_playground_locales//en",
+        "@com_github_go_playground_locales//th",
+        "@com_github_go_playground_universal_translator//:universal-translator",
+        "@com_github_go_playground_validator_v10//:validator",
+        "@com_github_go_playground_validator_v10//translations/en",
+        "@com_github_go_playground_validator_v10//translations/th",
+        "@org_golang_google_grpc//metadata",
+    ],
+)

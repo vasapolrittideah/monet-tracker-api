@@ -1,0 +1,15 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "domain",
+    srcs = [
+        "auth.go",
+        "user.go",
+    ],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/shared/domain",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//protogen/user/v1:user",
+        "@org_golang_google_protobuf//types/known/timestamppb",
+    ],
+)

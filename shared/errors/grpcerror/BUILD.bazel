@@ -1,0 +1,13 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "grpcerror",
+    srcs = ["grpcerror.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/shared/errors/grpcerror",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//shared/errors/apperror",
+        "@org_golang_google_grpc//codes",
+        "@org_golang_google_grpc//status",
+    ],
+)

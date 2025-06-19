@@ -52,7 +52,7 @@ func (a *App) Run() {
 	}
 
 	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	select {
 	case sig := <-sigChan:
@@ -68,8 +68,6 @@ func (a *App) Run() {
 }
 
 func (a *App) Stop() {
-	database.Close(a.db)
-
 	for _, s := range a.servers {
 		_ = s.Stop()
 	}
@@ -77,6 +75,8 @@ func (a *App) Stop() {
 	if a.deregisterFunc != nil {
 		_ = a.deregisterFunc()
 	}
+
+	database.Close(a.db)
 }
 
 func (a *App) GetGRPCClient(name string) *grpc.ClientConn {

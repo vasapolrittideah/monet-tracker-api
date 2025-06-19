@@ -46,41 +46,5 @@ services:
     ports:
       - "10000:10000"
 
-  user:
-    build:
-      context: .
-      dockerfile: services/user/Dockerfile
-    container_name: user-service-container
-    volumes:
-      - .:/app
-    ports:
-      - "8000:8000"
-      - "9000:9000"
-    environment:
-      - ENVIRONMENT=development
-      - TERM=xterm-256color
-      - COMPOSE_BAKE=true
-    env_file:
-      - path: .env
-        required: true
-
-  auth:
-    build:
-      context: .
-      dockerfile: services/auth/Dockerfile
-    container_name: auth-service-container
-    working_dir: /app/services/auth
-    volumes:
-      - .:/app
-    ports:
-      - "8001:8001"
-    environment:
-      - ENVIRONMENT=development
-      - TERM=xterm-256color
-      - COMPOSE_BAKE=true
-    env_file:
-      - path: .env
-        required: true
-
 volumes:
   postgres_data:

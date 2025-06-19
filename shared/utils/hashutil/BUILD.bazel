@@ -11,3 +11,11 @@ go_library(
         "@org_golang_google_grpc//codes",
     ],
 )
+
+go_library(
+    name = "hashutil",
+    srcs = ["hashutil.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/shared/utils/hashutil",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_matthewhartstonge_argon2//:argon2"],
+)

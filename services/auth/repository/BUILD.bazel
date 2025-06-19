@@ -1,0 +1,12 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "repository",
+    srcs = ["auth_repository.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/auth/repository",
+    visibility = ["//services/auth:__subpackages__"],
+    deps = [
+        "//shared/domain",
+        "@io_gorm_gorm//:gorm",
+    ],
+)
