@@ -52,7 +52,7 @@ func (h *userHTTPHandler) RegisterRoutes() {
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /users [get]
 func (h *userHTTPHandler) GetAllUsers(c *fiber.Ctx) error {
-	users, err := h.usecase.GetAllUsers()
+	users, err := h.usecase.GetAllUsers(c.Context())
 	if err != nil {
 		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
@@ -80,7 +80,7 @@ func (h *userHTTPHandler) GetUserByID(c *fiber.Ctx) error {
 		return httperror.NewBadRequestError(c, "invalid user id format")
 	}
 
-	user, err := h.usecase.GetUserByID(id)
+	user, err := h.usecase.GetUserByID(c.Context(), id)
 	if err != nil {
 		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
@@ -108,7 +108,7 @@ func (h *userHTTPHandler) GetUserByEmail(c *fiber.Ctx) error {
 		return httperror.NewBadRequestError(c, "invalid email format")
 	}
 
-	user, err := h.usecase.GetUserByEmail(email)
+	user, err := h.usecase.GetUserByEmail(c.Context(), email)
 	if err != nil {
 		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
@@ -146,7 +146,7 @@ func (h *userHTTPHandler) UpdateUser(c *fiber.Ctx) error {
 		return httperror.NewValidationError(c, err)
 	}
 
-	user, err := h.usecase.GetUserByID(id)
+	user, err := h.usecase.GetUserByID(c.Context(), id)
 	if err != nil {
 		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
@@ -170,7 +170,7 @@ func (h *userHTTPHandler) UpdateUser(c *fiber.Ctx) error {
 		user.RefreshToken = *req.RefreshToken
 	}
 
-	updated, err := h.usecase.UpdateUser(user)
+	updated, err := h.usecase.UpdateUser(c.Context(), user)
 	if err != nil {
 		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}
@@ -198,7 +198,7 @@ func (h *userHTTPHandler) DeleteUser(c *fiber.Ctx) error {
 		return httperror.NewBadRequestError(c, "invalid user id format")
 	}
 
-	deleted, err := h.usecase.DeleteUser(id)
+	deleted, err := h.usecase.DeleteUser(c.Context(), id)
 	if err != nil {
 		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}

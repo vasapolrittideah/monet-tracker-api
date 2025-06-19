@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"strings"
 
@@ -20,8 +21,8 @@ func NewUserUsecase(repository domain.UserRepository, config *config.Config) dom
 	return &userUsecase{repository: repository, config: config}
 }
 
-func (u *userUsecase) GetAllUsers() ([]*domain.User, error) {
-	users, err := u.repository.GetAllUsers()
+func (u *userUsecase) GetAllUsers(ctx context.Context) ([]*domain.User, error) {
+	users, err := u.repository.GetAllUsers(ctx)
 	if err != nil {
 		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
 	}
@@ -32,8 +33,8 @@ func (u *userUsecase) GetAllUsers() ([]*domain.User, error) {
 	return users, nil
 }
 
-func (u *userUsecase) GetUserByID(id uint64) (*domain.User, error) {
-	user, err := u.repository.GetUserByID(id)
+func (u *userUsecase) GetUserByID(ctx context.Context, id uint64) (*domain.User, error) {
+	user, err := u.repository.GetUserByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewError(apperror.ErrNotFound, "user not found")
@@ -45,8 +46,8 @@ func (u *userUsecase) GetUserByID(id uint64) (*domain.User, error) {
 	return user, nil
 }
 
-func (u *userUsecase) GetUserByEmail(email string) (*domain.User, error) {
-	user, err := u.repository.GetUserByEmail(email)
+func (u *userUsecase) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
+	user, err := u.repository.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewError(apperror.ErrNotFound, "user not found")
@@ -58,7 +59,7 @@ func (u *userUsecase) GetUserByEmail(email string) (*domain.User, error) {
 	return user, nil
 }
 
-func (u *userUsecase) CreateUser(user *domain.User) (*domain.User, error) {
+func (u *userUsecase) CreateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
 	hashedPassword, err := hashutil.Hash(user.Password)
 	if err != nil {
 		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
@@ -66,7 +67,7 @@ func (u *userUsecase) CreateUser(user *domain.User) (*domain.User, error) {
 
 	user.Password = hashedPassword
 
-	created, err := u.repository.CreateUser(user)
+	created, err := u.repository.CreateUser(ctx, user)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key") {
 			return nil, apperror.NewError(apperror.ErrAlreadyExists, "user already exists")
@@ -78,8 +79,8 @@ func (u *userUsecase) CreateUser(user *domain.User) (*domain.User, error) {
 	return created, nil
 }
 
-func (u *userUsecase) UpdateUser(user *domain.User) (*domain.User, error) {
-	existing, err := u.GetUserByID(user.ID)
+func (u *userUsecase) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
+	existing, err := u.GetUserByID(ctx, user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +93,7 @@ func (u *userUsecase) UpdateUser(user *domain.User) (*domain.User, error) {
 		return nil, apperror.NewError(apperror.ErrInvalidArgument, "no changes detected")
 	}
 
-	updated, err := u.repository.UpdateUser(user)
+	updated, err := u.repository.UpdateUser(ctx, user)
 	if err != nil {
 		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
 	}
@@ -100,8 +101,8 @@ func (u *userUsecase) UpdateUser(user *domain.User) (*domain.User, error) {
 	return updated, nil
 }
 
-func (u *userUsecase) DeleteUser(id uint64) (*domain.User, error) {
-	deleted, err := u.repository.DeleteUser(id)
+func (u *userUsecase) DeleteUser(ctx context.Context, id uint64) (*domain.User, error) {
+	deleted, err := u.repository.DeleteUser(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewError(apperror.ErrNotFound, "user not found")

@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"time"
 
 	userv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
@@ -57,19 +58,19 @@ type UpdateUserRequest struct {
 }
 
 type UserUsecase interface {
-	GetAllUsers() ([]*User, error)
-	GetUserByID(id uint64) (*User, error)
-	GetUserByEmail(email string) (*User, error)
-	CreateUser(user *User) (*User, error)
-	UpdateUser(user *User) (*User, error)
-	DeleteUser(id uint64) (*User, error)
+	GetAllUsers(ctx context.Context) ([]*User, error)
+	GetUserByID(ctx context.Context, id uint64) (*User, error)
+	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	CreateUser(ctx context.Context, user *User) (*User, error)
+	UpdateUser(ctx context.Context, user *User) (*User, error)
+	DeleteUser(ctx context.Context, id uint64) (*User, error)
 }
 
 type UserRepository interface {
-	GetAllUsers() ([]*User, error)
-	GetUserByID(id uint64) (*User, error)
-	GetUserByEmail(email string) (*User, error)
-	CreateUser(user *User) (*User, error)
-	UpdateUser(user *User) (*User, error)
-	DeleteUser(id uint64) (*User, error)
+	GetAllUsers(ctx context.Context) ([]*User, error)
+	GetUserByID(ctx context.Context, id uint64) (*User, error)
+	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	CreateUser(ctx context.Context, user *User) (*User, error)
+	UpdateUser(ctx context.Context, user *User) (*User, error)
+	DeleteUser(ctx context.Context, id uint64) (*User, error)
 }
