@@ -23,11 +23,7 @@ func main() {
 
 	app := bootstrap.NewApp("auth-service", cfg, db)
 
-	app.ConnectGRPCClientsFromConsul(
-		cfg.Server.ConsulHost,
-		cfg.Server.ConsulPort,
-		[]string{"user-service"},
-	)
+	app.ConnectGRPCClientsFromConsul([]string{"user-service"})
 
 	userClient := userpbv1.NewUserServiceClient(app.GetGRPCClient("user-service"))
 	authRepository := repository.NewAuthRepository(db)

@@ -11,8 +11,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-// ConnectGRPCServiceWithConsul connects to the given list of gRPC services registered in Consul
-func ConnectGRPCServiceWithConsul(
+// ConnectGRPCClients connects to the given list of gRPC services registered in Consul
+func ConnectGRPCClients(
 	consulHost string,
 	consulPort string,
 	serviceNames []string,
@@ -28,8 +28,8 @@ func ConnectGRPCServiceWithConsul(
 	return consulClient.createClientConnections(serviceNames)
 }
 
-// RegisterGRPCServiceWithConsul registers the gRPC service in Consul and deregisters on context cancellation
-func RegisterGRPCServiceWithConsul(
+// RegisterGRPCService registers the gRPC service in Consul and deregisters on context cancellation
+func RegisterGRPCService(
 	consulHost string,
 	consulPort string,
 	serviceID string,

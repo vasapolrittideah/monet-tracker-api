@@ -101,8 +101,12 @@ func (a *App) AddGRPCServer(addr string, registrar grpcserver.ServiceRegistrar) 
 	})
 }
 
-func (a *App) ConnectGRPCClientsFromConsul(consulHost string, consulPort string, services []string) {
-	conns, err := consul.ConnectGRPCServiceWithConsul(consulHost, consulPort, services)
+func (a *App) ConnectGRPCClientsFromConsul(services []string) {
+	conns, err := consul.ConnectGRPCClients(
+		a.config.Server.ConsulHost,
+		a.config.Server.ConsulPort,
+		services,
+	)
 	if err != nil {
 		log.Fatalf("failed to connect to gRPC services via Consul: %v", err)
 	}
@@ -118,7 +122,7 @@ func (a *App) RegisterGRPCServiceWithConsul(
 	checkInterval time.Duration,
 	deregisterAfter time.Duration,
 ) {
-	deregisterFunc, err := consul.RegisterGRPCServiceWithConsul(
+	deregisterFunc, err := consul.RegisterGRPCService(
 		a.config.Server.ConsulHost,
 		a.config.Server.ConsulPort,
 		serviceID,
