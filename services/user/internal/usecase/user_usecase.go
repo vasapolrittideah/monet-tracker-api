@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 
+	user "github.com/vasapolrittideah/money-tracker-api/services/user/internal"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 	"github.com/vasapolrittideah/money-tracker-api/shared/errors/apperror"
@@ -13,11 +14,11 @@ import (
 )
 
 type userUsecase struct {
-	repository domain.UserRepository
+	repository user.UserRepository
 	config     *config.Config
 }
 
-func NewUserUsecase(repository domain.UserRepository, config *config.Config) domain.UserUsecase {
+func NewUserUsecase(repository user.UserRepository, config *config.Config) user.UserUsecase {
 	return &userUsecase{repository: repository, config: config}
 }
 

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	auth "github.com/vasapolrittideah/money-tracker-api/services/auth/internal"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 	"gorm.io/gorm"
 )
@@ -11,7 +12,7 @@ type authRepository struct {
 	db *gorm.DB
 }
 
-func NewAuthRepository(db *gorm.DB) domain.AuthRepository {
+func NewAuthRepository(db *gorm.DB) auth.AuthRepository {
 	return &authRepository{db}
 }
 

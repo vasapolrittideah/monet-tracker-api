@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	user "github.com/vasapolrittideah/money-tracker-api/services/user/internal"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 	"gorm.io/gorm"
 )
@@ -11,7 +12,7 @@ type userRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) domain.UserRepository {
+func NewUserRepository(db *gorm.DB) user.UserRepository {
 	return &userRepository{db}
 }
 

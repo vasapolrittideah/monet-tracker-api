@@ -4,20 +4,20 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	auth "github.com/vasapolrittideah/money-tracker-api/services/auth/internal"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 	"github.com/vasapolrittideah/money-tracker-api/shared/errors/apperror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/errors/httperror"
 )
 
 type oauthGoogleHTTPHandler struct {
-	usecase domain.OAuthGoogleUsecase
+	usecase auth.OAuthGoogleUsecase
 	router  fiber.Router
 	config  *config.Config
 }
 
 func NewOAuthGoogleHTTPHandler(
-	usecase domain.OAuthGoogleUsecase,
+	usecase auth.OAuthGoogleUsecase,
 	router fiber.Router,
 	config *config.Config,
 ) *oauthGoogleHTTPHandler {

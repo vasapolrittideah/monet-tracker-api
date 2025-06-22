@@ -6,10 +6,11 @@ go_library(
         "auth_usecase.go",
         "oauth_google_usecase.go",
     ],
-    importpath = "github.com/vasapolrittideah/money-tracker-api/services/auth/usecase",
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/auth/internal/usecase",
     visibility = ["//services/auth:__subpackages__"],
     deps = [
         "//protogen/user/v1:user",
+        "//services/auth/internal",
         "//shared/config",
         "//shared/domain",
         "//shared/errors/apperror",

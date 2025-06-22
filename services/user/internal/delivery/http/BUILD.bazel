@@ -3,11 +3,11 @@ load("@rules_go//go:def.bzl", "go_library")
 go_library(
     name = "http",
     srcs = ["user_handler.go"],
-    importpath = "github.com/vasapolrittideah/money-tracker-api/services/user/delivery/http",
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/user/internal/delivery/http",
     visibility = ["//services/user:__subpackages__"],
     deps = [
+        "//services/user/internal",
         "//shared/config",
-        "//shared/domain",
         "//shared/errors/apperror",
         "//shared/errors/httperror",
         "//shared/validator",

@@ -6,21 +6,21 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	user "github.com/vasapolrittideah/money-tracker-api/services/user/internal"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 	"github.com/vasapolrittideah/money-tracker-api/shared/errors/apperror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/errors/httperror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/validator"
 )
 
 type userHTTPHandler struct {
-	usecase domain.UserUsecase
+	usecase user.UserUsecase
 	router  fiber.Router
 	config  *config.Config
 }
 
 func NewUserHTTPHandler(
-	usecase domain.UserUsecase,
+	usecase user.UserUsecase,
 	router fiber.Router,
 	config *config.Config,
 ) *userHTTPHandler {
@@ -137,7 +137,7 @@ func (h *userHTTPHandler) UpdateUser(c *fiber.Ctx) error {
 		return httperror.NewBadRequestError(c, "invalid user id format")
 	}
 
-	var req domain.UpdateUserRequest
+	var req user.UpdateUserRequest
 	if err := c.BodyParser(&req); err != nil {
 		return httperror.NewBadRequestError(c, err.Error())
 	}

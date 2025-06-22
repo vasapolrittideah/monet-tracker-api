@@ -7,9 +7,9 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//protogen/user/v1:user",
-        "//services/auth/delivery/http",
-        "//services/auth/repository",
-        "//services/auth/usecase",
+        "//services/auth/internal/delivery/http",
+        "//services/auth/internal/repository",
+        "//services/auth/internal/usecase",
         "//shared/bootstrap",
         "//shared/config",
         "//shared/database",

@@ -5,17 +5,18 @@ import (
 
 	"github.com/charmbracelet/log"
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
+	user "github.com/vasapolrittideah/money-tracker-api/services/user/internal"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 )
 
 type userGRPCHandler struct {
-	usecase domain.UserUsecase
+	usecase user.UserUsecase
 	config  *config.Config
 	userpbv1.UnimplementedUserServiceServer
 }
 
-func NewUserGRPCHandler(usecase domain.UserUsecase, config *config.Config) *userGRPCHandler {
+func NewUserGRPCHandler(usecase user.UserUsecase, config *config.Config) *userGRPCHandler {
 	return &userGRPCHandler{
 		usecase: usecase,
 		config:  config,

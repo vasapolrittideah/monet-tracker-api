@@ -4,6 +4,7 @@ import (
 	"context"
 
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
+	auth "github.com/vasapolrittideah/money-tracker-api/services/auth/internal"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 	"github.com/vasapolrittideah/money-tracker-api/shared/errors/apperror"
@@ -18,14 +19,14 @@ type authUsecase struct {
 	config     *config.Config
 }
 
-func NewAuthUsecase(userClient userpbv1.UserServiceClient, config *config.Config) domain.AuthUsecase {
+func NewAuthUsecase(userClient userpbv1.UserServiceClient, config *config.Config) auth.AuthUsecase {
 	return &authUsecase{
 		userClient: userClient,
 		config:     config,
 	}
 }
 
-func (u *authUsecase) SignUp(ctx context.Context, req *domain.SignUpRequest) (*domain.User, error) {
+func (u *authUsecase) SignUp(ctx context.Context, req *auth.SignUpRequest) (*domain.User, error) {
 	newUser := domain.User{
 		FullName: req.FullName,
 		Email:    req.Email,
@@ -52,7 +53,7 @@ func (u *authUsecase) SignUp(ctx context.Context, req *domain.SignUpRequest) (*d
 	return domain.NewUserFromProto(res.User), nil
 }
 
-func (u *authUsecase) SignIn(ctx context.Context, req *domain.SignInRequest) (*domain.Token, error) {
+func (u *authUsecase) SignIn(ctx context.Context, req *auth.SignInRequest) (*auth.TokenResponse, error) {
 	res, err := u.userClient.GetUserByEmail(ctx, &userpbv1.GetUserByEmailRequest{
 		Email: req.Email,
 	})
@@ -86,7 +87,7 @@ func (u *authUsecase) SignIn(ctx context.Context, req *domain.SignInRequest) (*d
 	return token, nil
 }
 
-func generateTokens(userID uint64, jwtConfig *config.JWTConfig) (*domain.Token, error) {
+func generateTokens(userID uint64, jwtConfig *config.JWTConfig) (*auth.TokenResponse, error) {
 	accessToken, err := tokenutil.GenerateToken(
 		jwtConfig.AccessTokenExpiresIn,
 		jwtConfig.AccessTokenSecretKey,
@@ -105,7 +106,7 @@ func generateTokens(userID uint64, jwtConfig *config.JWTConfig) (*domain.Token, 
 		return nil, err
 	}
 
-	return &domain.Token{
+	return &auth.TokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil

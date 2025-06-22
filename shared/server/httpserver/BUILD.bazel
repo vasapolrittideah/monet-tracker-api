@@ -9,7 +9,6 @@ go_library(
         "@com_github_charmbracelet_log//:log",
         "@com_github_gofiber_fiber_v2//:fiber",
         "@com_github_gofiber_fiber_v2//middleware/cors",
-        "@com_github_gofiber_fiber_v2//middleware/logger",
         "@com_github_gofiber_fiber_v2//middleware/recover",
     ],
 )

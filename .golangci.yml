@@ -11,15 +11,11 @@ linters:
     - whitespace
     - gocritic
     - goconst
-    - lll
   exclusions:
     rules:
       - path: '(.+)_test\.go'
         linters:
           - errcheck
-      - path: shared/domain/
-        linters:
-          - lll
 
 formatters:
   enable:

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
+	auth "github.com/vasapolrittideah/money-tracker-api/services/auth/internal"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 	"github.com/vasapolrittideah/money-tracker-api/shared/errors/apperror"
@@ -19,18 +20,18 @@ import (
 
 type oauthGoogleUsecase struct {
 	userClient        userpbv1.UserServiceClient
-	authUsecase       domain.AuthUsecase
-	authRepo          domain.AuthRepository
+	authUsecase       auth.AuthUsecase
+	authRepo          auth.AuthRepository
 	oauthGoogleConfig *oauth2.Config
 	config            *config.Config
 }
 
 func NewOAuthGoogleUsecase(
 	userClient userpbv1.UserServiceClient,
-	authUsecase domain.AuthUsecase,
-	authRepo domain.AuthRepository,
+	authUsecase auth.AuthUsecase,
+	authRepo auth.AuthRepository,
 	config *config.Config,
-) domain.OAuthGoogleUsecase {
+) auth.OAuthGoogleUsecase {
 	oauthGoogleConfig := &oauth2.Config{
 		ClientID:     config.OAuthGoogle.ClientID,
 		ClientSecret: config.OAuthGoogle.ClientSecret,
@@ -55,7 +56,7 @@ func (u *oauthGoogleUsecase) GetSignInWithGoogleURL(state string) string {
 	return u.oauthGoogleConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
 }
 
-func (u *oauthGoogleUsecase) HandleGoogleCallback(ctx context.Context, code string) (*domain.Token, error) {
+func (u *oauthGoogleUsecase) HandleGoogleCallback(ctx context.Context, code string) (*auth.TokenResponse, error) {
 	userInfo, err := getGoogleUserInfo(code, u.oauthGoogleConfig)
 	if err != nil {
 		return nil, apperror.NewError(apperror.ErrInternal, err.Error())

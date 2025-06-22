@@ -4,20 +4,20 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	auth "github.com/vasapolrittideah/money-tracker-api/services/auth/internal"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
-	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 	"github.com/vasapolrittideah/money-tracker-api/shared/errors/apperror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/errors/httperror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/validator"
 )
 
 type authHTTPHandler struct {
-	usecase domain.AuthUsecase
+	usecase auth.AuthUsecase
 	router  fiber.Router
 	config  *config.Config
 }
 
-func NewAuthHTTPHandler(usecase domain.AuthUsecase, router fiber.Router, config *config.Config) *authHTTPHandler {
+func NewAuthHTTPHandler(usecase auth.AuthUsecase, router fiber.Router, config *config.Config) *authHTTPHandler {
 	return &authHTTPHandler{
 		usecase: usecase,
 		router:  router,
@@ -45,7 +45,7 @@ func (c *authHTTPHandler) RegisterRoutes() {
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /auth/sign-up [post]
 func (h *authHTTPHandler) SignUp(c *fiber.Ctx) error {
-	req := new(domain.SignUpRequest)
+	req := new(auth.SignUpRequest)
 
 	if err := c.BodyParser(req); err != nil {
 		return httperror.NewBadRequestError(c, err.Error())
@@ -76,7 +76,7 @@ func (h *authHTTPHandler) SignUp(c *fiber.Ctx) error {
 // @Failure 500 {object} httperror.HTTPError "Internal Server Error"
 // @Router /auth/sign-in [post]
 func (h *authHTTPHandler) SignIn(c *fiber.Ctx) error {
-	req := new(domain.SignInRequest)
+	req := new(auth.SignInRequest)
 
 	if err := c.BodyParser(req); err != nil {
 		return httperror.NewBadRequestError(c, err.Error())
