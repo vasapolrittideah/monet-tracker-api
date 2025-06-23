@@ -19,7 +19,7 @@ services:
       - "8500:8500"
       - "8600:8600/udp"
     command: agent -dev -client=0.0.0.0
-    restart: unless-stopped
+    restart: always
 
   traefik:
     image: traefik:v2.10
@@ -35,6 +35,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml
       - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml
+    restart: always
 
   docs:
     build:
@@ -47,9 +48,7 @@ services:
       - "10000:10000"
 
   user:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: money-tracker-api-local:latest
     container_name: user-service-container
     volumes:
       - .:/app
@@ -61,9 +60,9 @@ services:
       - "8000:8000"
 
   auth:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: money-tracker-api-local:latest
+    depends_on:
+      - user
     container_name: auth-service-container
     volumes:
       - .:/app

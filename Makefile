@@ -1,26 +1,7 @@
-# === General Config ===
-DOCKER_COMPOSE = docker compose
-COMPOSE_FILE = docker-compose.yml
-PROTO_DIR=protobuf
-OUT_DIR=generated/protobuf
-PROTO_FILES=$(wildcard $(PROTO_DIR)/*.proto)
+.PHONY: build-image
 
-# === Docker Compose Targets ===
-.PHONY: up down restart logs build
-
-up:
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d
-
-down:
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) down
-
-restart: down up
-
-logs:
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) logs -f
-
-build:
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) build
+build-image:
+	docker build -t money-tracker-api-local:latest .
 
 # === Bazel Targets ===
 .PHONY: bazel-gazelle bazel-build bazel-tidy bazel-test
