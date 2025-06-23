@@ -1,3 +1,50 @@
+# Docker-related files
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# IDE and editor configs
+.vscode/
+.idea/
+
+# Git metadata and config
+.github/
+.git/
+.gitignore
+.gitmessage
+.gitattributes
+
+# Go build artifacts and test files
+build/
+coverage/
+*_test.go
+
+# Repository metadata
+README.md
+LICENSE
+
+# Protocol Buffers generated files
+buf*
+
+# Linters and formatters configs
+.husky/
+.commitlintrc.js
+.lintstagedrc.js
+
+# Bazel build system files
+.bazelignore
+.bazelrc
+.bazelversion
+MODULE.bazel
+MODULE.bazel.lock
+WORKSPACE
+
+# Node.js dependencies and lock files
+node_modules/
+package.json
+bun.lockb
+
+# Temporary and vendor directories
 tmp/
 vendor/
-node_modules/
+bazel-*
