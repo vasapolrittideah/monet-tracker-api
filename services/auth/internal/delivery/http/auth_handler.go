@@ -86,7 +86,10 @@ func (h *authHTTPHandler) SignIn(c *fiber.Ctx) error {
 		return httperror.NewValidationError(c, err)
 	}
 
-	token, err := h.usecase.SignIn(c.Context(), req)
+	userAgent := c.Get("User-Agent")
+	ipAddress := c.IP()
+
+	token, err := h.usecase.SignIn(c.Context(), req, userAgent, ipAddress)
 	if err != nil {
 		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}

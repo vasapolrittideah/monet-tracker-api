@@ -16,6 +16,7 @@ go_library(
 
 go_binary(
     name = "migration",
+    data = ["//:env"],
     embed = [":migration_lib"],
     visibility = ["//visibility:public"],
 )

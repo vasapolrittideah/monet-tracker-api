@@ -88,9 +88,9 @@ func (u *userUsecase) UpdateUser(ctx context.Context, user *domain.User) (*domai
 
 	if existing.FullName == user.FullName &&
 		existing.Email == user.Email &&
-		existing.Verified == user.Verified &&
 		existing.Password == user.Password &&
-		existing.RefreshToken == user.RefreshToken {
+		existing.Verified == user.Verified &&
+		existing.Registered == user.Registered {
 		return nil, apperror.NewError(apperror.ErrInvalidArgument, "no changes detected")
 	}
 

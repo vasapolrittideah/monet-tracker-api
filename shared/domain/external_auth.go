@@ -3,10 +3,10 @@ package domain
 import "time"
 
 type ExternalAuth struct {
-	ID         uint64 `json:"id"         gorm:"primaryKey;autoIncrement"`
-	Provider   string `                  gorm:"not null"`
-	ProviderID string `                  gorm:"not null"`
-	UserID     uint64
-	CreatedAt  time.Time `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt  time.Time `json:"updated_at" gorm:"autoUpdateTime"`
+	ID         uint64    `gorm:"primaryKey;autoIncrement"`
+	UserID     uint64    `gorm:"not null"`
+	Provider   string    `gorm:"not null"`
+	ProviderID string    `gorm:"not null"`
+	CreatedAt  time.Time `gorm:"autoCreateTime"`
+	UpdatedAt  time.Time `gorm:"autoUpdateTime"`
 }

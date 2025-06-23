@@ -3,7 +3,6 @@ module github.com/vasapolrittideah/money-tracker-api
 go 1.24.3
 
 require (
-	github.com/bazelbuild/rules_go v0.55.1
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/charmbracelet/log v0.4.2
 	github.com/go-playground/locales v0.14.1

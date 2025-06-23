@@ -166,9 +166,6 @@ func (h *userHTTPHandler) UpdateUser(c *fiber.Ctx) error {
 	if req.Registered != nil {
 		user.Registered = *req.Registered
 	}
-	if req.RefreshToken != nil {
-		user.RefreshToken = *req.RefreshToken
-	}
 
 	updated, err := h.usecase.UpdateUser(c.Context(), user)
 	if err != nil {

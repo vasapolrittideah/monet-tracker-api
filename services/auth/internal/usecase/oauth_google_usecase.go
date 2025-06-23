@@ -21,7 +21,7 @@ import (
 type oauthGoogleUsecase struct {
 	userClient        userpbv1.UserServiceClient
 	authUsecase       auth.AuthUsecase
-	authRepo          auth.AuthRepository
+	externalAuthRepo  auth.ExternalAuthRepository
 	oauthGoogleConfig *oauth2.Config
 	config            *config.Config
 }
@@ -29,7 +29,7 @@ type oauthGoogleUsecase struct {
 func NewOAuthGoogleUsecase(
 	userClient userpbv1.UserServiceClient,
 	authUsecase auth.AuthUsecase,
-	authRepo auth.AuthRepository,
+	externalAuthRepo auth.ExternalAuthRepository,
 	config *config.Config,
 ) auth.OAuthGoogleUsecase {
 	oauthGoogleConfig := &oauth2.Config{
@@ -46,7 +46,7 @@ func NewOAuthGoogleUsecase(
 	return &oauthGoogleUsecase{
 		userClient:        userClient,
 		authUsecase:       authUsecase,
-		authRepo:          authRepo,
+		externalAuthRepo:  externalAuthRepo,
 		oauthGoogleConfig: oauthGoogleConfig,
 		config:            config,
 	}
@@ -63,7 +63,7 @@ func (u *oauthGoogleUsecase) HandleGoogleCallback(ctx context.Context, code stri
 	}
 
 	// Check if Google account already linked
-	externalAuth, err := u.authRepo.GetExternalAuthByProviderID(ctx, userInfo.Id)
+	externalAuth, err := u.externalAuthRepo.GetExternalAuthByProvider(ctx, "GOOGLE", userInfo.Id)
 	if err == nil {
 		// Google account already linked, generate tokens
 		token, err := generateTokens(externalAuth.UserID, &u.config.JWT)
@@ -107,7 +107,7 @@ func (u *oauthGoogleUsecase) HandleGoogleCallback(ctx context.Context, code stri
 	}
 
 	// Link Google account to local user
-	_, err = u.authRepo.CreateExternalAuth(ctx, &domain.ExternalAuth{
+	_, err = u.externalAuthRepo.CreateExternalAuth(ctx, &domain.ExternalAuth{
 		ProviderID: userInfo.Id,
 		Provider:   "GOOGLE",
 		UserID:     userID,

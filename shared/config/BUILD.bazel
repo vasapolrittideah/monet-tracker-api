@@ -8,7 +8,5 @@ go_library(
     deps = [
         "@com_github_caarlos0_env_v11//:env",
         "@com_github_charmbracelet_log//:log",
-        "@com_github_joho_godotenv//:godotenv",
-        "@rules_go//go/runfiles",
     ],
 )

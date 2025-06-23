@@ -106,9 +106,6 @@ func (c *userGRPCHandler) UpdateUser(
 	if req.Registered != nil {
 		user.Registered = req.Registered.GetValue()
 	}
-	if req.RefreshToken != nil {
-		user.RefreshToken = req.RefreshToken.GetValue()
-	}
 
 	updated, err := c.usecase.UpdateUser(ctx, user)
 	if err != nil {

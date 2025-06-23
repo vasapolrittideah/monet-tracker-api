@@ -23,9 +23,8 @@ message User {
   bool verified = 4;
   bool registered = 5;
   string password = 6;
-  string refresh_token = 7;
-  google.protobuf.Timestamp created_at = 8;
-  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
 }
 
 // Request message
@@ -52,7 +51,6 @@ message UpdateUserRequest {
   google.protobuf.StringValue password = 4;
   google.protobuf.BoolValue verified = 5;
   google.protobuf.BoolValue registered = 6;
-  google.protobuf.StringValue refresh_token = 7;
 }
 
 message DeleteUserRequest {

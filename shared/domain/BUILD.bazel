@@ -4,6 +4,7 @@ go_library(
     name = "domain",
     srcs = [
         "external_auth.go",
+        "session.go",
         "user.go",
     ],
     importpath = "github.com/vasapolrittideah/money-tracker-api/shared/domain",

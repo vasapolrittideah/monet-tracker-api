@@ -2,9 +2,3 @@ load("@gazelle//:def.bzl", "gazelle")
 
 # gazelle:prefix github.com/vasapolrittideah/money-tracker-api
 gazelle(name = "gazelle")
-
-filegroup(
-    name = "env",
-    srcs = [".env"],
-    visibility = ["//visibility:public"],
-)

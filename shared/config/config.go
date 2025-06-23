@@ -3,10 +3,8 @@ package config
 import (
 	"time"
 
-	"github.com/bazelbuild/rules_go/go/runfiles"
 	"github.com/caarlos0/env/v11"
 	"github.com/charmbracelet/log"
-	"github.com/joho/godotenv"
 )
 
 type JWTConfig struct {
@@ -49,20 +47,6 @@ type Config struct {
 }
 
 func Load() *Config {
-	rf, err := runfiles.New()
-	if err != nil {
-		log.Fatalf("failed to create runfiles object: %v", err)
-	}
-
-	envPath, err := rf.Rlocation("money_tracker_api/.env")
-	if err != nil {
-		log.Fatalf("failed to locate .env file: %v", err)
-	}
-
-	if err := godotenv.Load(envPath); err != nil {
-		log.Fatalf("failed to load .env file: %v", err)
-	}
-
 	var config Config
 	if err := env.Parse(&config); err != nil {
 		log.Fatal("failed to parse environment variables: %v", err)

@@ -26,9 +26,10 @@ func main() {
 	app.ConnectGRPCClientsFromConsul([]string{"user-service"})
 
 	userClient := userpbv1.NewUserServiceClient(app.GetGRPCClient("user-service"))
-	authRepository := repository.NewAuthRepository(db)
-	authUsecase := usecase.NewAuthUsecase(userClient, cfg)
-	oauthGoogleUsecase := usecase.NewOAuthGoogleUsecase(userClient, authUsecase, authRepository, cfg)
+	externalAuthRepository := repository.NewExternalAuthRepository(db)
+	sessionRepository := repository.NewSessionRepository(db)
+	authUsecase := usecase.NewAuthUsecase(userClient, sessionRepository, cfg)
+	oauthGoogleUsecase := usecase.NewOAuthGoogleUsecase(userClient, authUsecase, externalAuthRepository, cfg)
 
 	app.AddHTTPServer(httpAddr, func(router fiber.Router) {
 		v1 := router.Group("/api/v1")

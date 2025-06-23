@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"time"
 
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	auth "github.com/vasapolrittideah/money-tracker-api/services/auth/internal"
@@ -15,14 +16,20 @@ import (
 )
 
 type authUsecase struct {
-	userClient userpbv1.UserServiceClient
-	config     *config.Config
+	userClient  userpbv1.UserServiceClient
+	sessionRepo auth.SessionRepository
+	config      *config.Config
 }
 
-func NewAuthUsecase(userClient userpbv1.UserServiceClient, config *config.Config) auth.AuthUsecase {
+func NewAuthUsecase(
+	userClient userpbv1.UserServiceClient,
+	sessionRepo auth.SessionRepository,
+	config *config.Config,
+) auth.AuthUsecase {
 	return &authUsecase{
-		userClient: userClient,
-		config:     config,
+		userClient:  userClient,
+		sessionRepo: sessionRepo,
+		config:      config,
 	}
 }
 
@@ -53,7 +60,11 @@ func (u *authUsecase) SignUp(ctx context.Context, req *auth.SignUpRequest) (*dom
 	return domain.NewUserFromProto(res.User), nil
 }
 
-func (u *authUsecase) SignIn(ctx context.Context, req *auth.SignInRequest) (*auth.TokenResponse, error) {
+func (u *authUsecase) SignIn(
+	ctx context.Context,
+	req *auth.SignInRequest,
+	userAgent, ipAddress string,
+) (*auth.TokenResponse, error) {
 	res, err := u.userClient.GetUserByEmail(ctx, &userpbv1.GetUserByEmailRequest{
 		Email: req.Email,
 	})
@@ -77,11 +88,16 @@ func (u *authUsecase) SignIn(ctx context.Context, req *auth.SignInRequest) (*aut
 		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
 	}
 
-	if _, err = u.userClient.UpdateUser(ctx, &userpbv1.UpdateUserRequest{
-		Id:           user.ID,
-		RefreshToken: wrapperspb.String(hashedRefreshToken),
-	}); err != nil {
-		return nil, grpcerror.ToAppError(err)
+	session := &domain.Session{
+		UserID:    user.ID,
+		Token:     hashedRefreshToken,
+		UserAgent: userAgent,
+		IPAddress: ipAddress,
+		ExpiresAt: time.Now().Add(u.config.JWT.RefreshTokenExpiresIn),
+	}
+	_, err = u.sessionRepo.CreateSession(ctx, session)
+	if err != nil {
+		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
 	}
 
 	return token, nil

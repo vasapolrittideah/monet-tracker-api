@@ -26,6 +26,8 @@ func main() {
 
 	if err := db.AutoMigrate(
 		&domain.User{},
+		&domain.Session{},
+		&domain.ExternalAuth{},
 	); err != nil {
 		log.Errorf("failed to migrate database: %v", err)
 		return

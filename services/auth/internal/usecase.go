@@ -8,7 +8,7 @@ import (
 
 type AuthUsecase interface {
 	SignUp(ctx context.Context, req *SignUpRequest) (*domain.User, error)
-	SignIn(ctx context.Context, req *SignInRequest) (*TokenResponse, error)
+	SignIn(ctx context.Context, req *SignInRequest, userAgent, ipAddress string) (*TokenResponse, error)
 }
 
 type OAuthGoogleUsecase interface {
