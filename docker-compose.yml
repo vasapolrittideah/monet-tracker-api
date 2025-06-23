@@ -36,7 +36,7 @@ services:
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml
       - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml
 
-  swagger:
+  docs:
     build:
       context: .
       dockerfile: swagger/Dockerfile
@@ -45,6 +45,34 @@ services:
       - .:/app
     ports:
       - "10000:10000"
+
+  user:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: user-service-container
+    volumes:
+      - .:/app
+    working_dir: /app/services/user
+    env_file:
+      - path: .env
+        required: true
+    ports:
+      - "8000:8000"
+
+  auth:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auth-service-container
+    volumes:
+      - .:/app
+    working_dir: /app/services/auth
+    env_file:
+      - path: .env
+        required: true
+    ports:
+      - "8001:8001"
 
 volumes:
   postgres_data:
