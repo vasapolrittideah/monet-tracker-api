@@ -1,11 +1,15 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Session struct {
-	ID        uint64 `gorm:"primaryKey;autoIncrement"`
-	UserID    uint64 `gorm:"not null"`
-	Token     string `gorm:"not null;unique"`
+	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" `
+	UserID    uuid.UUID `gorm:"not null"`
+	Token     string    `gorm:"not null;unique"`
 	UserAgent string
 	IPAddress string
 	Revoked   bool
