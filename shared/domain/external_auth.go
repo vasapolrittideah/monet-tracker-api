@@ -1,14 +1,10 @@
 package domain
 
-import (
-	"time"
-
-	"github.com/google/uuid"
-)
+import "time"
 
 type ExternalAuth struct {
-	ID         uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" `
-	UserID     uuid.UUID `gorm:"not null"`
+	ID         uint64    `gorm:"primaryKey;autoIncrement"`
+	UserID     uint64    `gorm:"not null"`
 	Provider   string    `gorm:"not null"`
 	ProviderID string    `gorm:"not null"`
 	CreatedAt  time.Time `gorm:"autoCreateTime"`
