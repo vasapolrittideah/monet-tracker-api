@@ -7,81 +7,81 @@ import (
 )
 
 const (
-	ErrUnknown            = "ERR_UNKNOWN"
-	ErrCanceled           = "ERR_CANCELED"
-	ErrInvalidArgument    = "ERR_INVALID_ARGUMENT"
-	ErrDeadlineExceeded   = "ERR_DEADLINE_EXCEEDED"
-	ErrNotFound           = "ERR_NOT_FOUND"
-	ErrAlreadyExists      = "ERR_ALREADY_EXISTS"
-	ErrPermissionDenied   = "ERR_PERMISSION_DENIED"
-	ErrResourceExhausted  = "ERR_RESOURCE_EXHAUSTED"
-	ErrFailedPrecondition = "ERR_FAILED_PRECONDITION"
-	ErrAborted            = "ERR_ABORTED"
-	ErrOutOfRange         = "ERR_OUT_OF_RANGE"
-	ErrUnimplemented      = "ERR_UNIMPLEMENTED"
-	ErrInternal           = "ERR_INTERNAL"
-	ErrUnavailable        = "ERR_UNAVAILABLE"
-	ErrDataLoss           = "ERR_DATA_LOSS"
-	ErrUnauthenticated    = "ERR_UNAUTHENTICATED"
+	CodeUnknown            = "UNKNOWN"
+	CodeCanceled           = "CANCELED"
+	CodeInvalidArgument    = "INVALID_ARGUMENT"
+	CodeDeadlineExceeded   = "DEADLINE_EXCEEDED"
+	CodeNotFound           = "NOT_FOUND"
+	CodeAlreadyExists      = "ALREADY_EXISTS"
+	CodePermissionDenied   = "PERMISSION_DENIED"
+	CodeResourceExhausted  = "RESOURCE_EXHAUSTED"
+	CodeFailedPrecondition = "FAILED_PRECONDITION"
+	CodeAborted            = "ABORTED"
+	CodeOutOfRange         = "OUT_OF_RANGE"
+	CodeUnimplemented      = "UNIMPLEMENTED"
+	CodeInternal           = "INTERNAL"
+	CodeUnavailable        = "UNAVAILABLE"
+	CodeDataLoss           = "DATA_LOSS"
+	CodeUnauthenticated    = "UNAUTHENTICATED"
 )
 
 var AppCodeToGRPCCodeMap = map[string]codes.Code{
-	ErrUnknown:            codes.Unknown,
-	ErrCanceled:           codes.Canceled,
-	ErrInvalidArgument:    codes.InvalidArgument,
-	ErrDeadlineExceeded:   codes.DeadlineExceeded,
-	ErrNotFound:           codes.NotFound,
-	ErrAlreadyExists:      codes.AlreadyExists,
-	ErrPermissionDenied:   codes.PermissionDenied,
-	ErrResourceExhausted:  codes.ResourceExhausted,
-	ErrFailedPrecondition: codes.FailedPrecondition,
-	ErrAborted:            codes.Aborted,
-	ErrOutOfRange:         codes.OutOfRange,
-	ErrUnimplemented:      codes.Unimplemented,
-	ErrInternal:           codes.Internal,
-	ErrUnavailable:        codes.Unavailable,
-	ErrDataLoss:           codes.DataLoss,
-	ErrUnauthenticated:    codes.Unauthenticated,
+	CodeUnknown:            codes.Unknown,
+	CodeCanceled:           codes.Canceled,
+	CodeInvalidArgument:    codes.InvalidArgument,
+	CodeDeadlineExceeded:   codes.DeadlineExceeded,
+	CodeNotFound:           codes.NotFound,
+	CodeAlreadyExists:      codes.AlreadyExists,
+	CodePermissionDenied:   codes.PermissionDenied,
+	CodeResourceExhausted:  codes.ResourceExhausted,
+	CodeFailedPrecondition: codes.FailedPrecondition,
+	CodeAborted:            codes.Aborted,
+	CodeOutOfRange:         codes.OutOfRange,
+	CodeUnimplemented:      codes.Unimplemented,
+	CodeInternal:           codes.Internal,
+	CodeUnavailable:        codes.Unavailable,
+	CodeDataLoss:           codes.DataLoss,
+	CodeUnauthenticated:    codes.Unauthenticated,
 }
 
 var GRPCCodeToAppCodeMap = map[codes.Code]string{
-	codes.Unknown:            ErrUnknown,
-	codes.Canceled:           ErrCanceled,
-	codes.InvalidArgument:    ErrInvalidArgument,
-	codes.DeadlineExceeded:   ErrDeadlineExceeded,
-	codes.NotFound:           ErrNotFound,
-	codes.AlreadyExists:      ErrAlreadyExists,
-	codes.PermissionDenied:   ErrPermissionDenied,
-	codes.ResourceExhausted:  ErrResourceExhausted,
-	codes.FailedPrecondition: ErrFailedPrecondition,
-	codes.Aborted:            ErrAborted,
-	codes.OutOfRange:         ErrOutOfRange,
-	codes.Unimplemented:      ErrUnimplemented,
-	codes.Internal:           ErrInternal,
-	codes.Unavailable:        ErrUnavailable,
-	codes.DataLoss:           ErrDataLoss,
-	codes.Unauthenticated:    ErrUnauthenticated,
+	codes.Unknown:            CodeUnknown,
+	codes.Canceled:           CodeCanceled,
+	codes.InvalidArgument:    CodeInvalidArgument,
+	codes.DeadlineExceeded:   CodeDeadlineExceeded,
+	codes.NotFound:           CodeNotFound,
+	codes.AlreadyExists:      CodeAlreadyExists,
+	codes.PermissionDenied:   CodePermissionDenied,
+	codes.ResourceExhausted:  CodeResourceExhausted,
+	codes.FailedPrecondition: CodeFailedPrecondition,
+	codes.Aborted:            CodeAborted,
+	codes.OutOfRange:         CodeOutOfRange,
+	codes.Unimplemented:      CodeUnimplemented,
+	codes.Internal:           CodeInternal,
+	codes.Unavailable:        CodeUnavailable,
+	codes.DataLoss:           CodeDataLoss,
+	codes.Unauthenticated:    CodeUnauthenticated,
 }
 
 const StatusClientClosedRequest = 499
 
 var AppCodeToHTTPStatusMap = map[string]int{
-	ErrUnknown:            http.StatusInternalServerError,
-	ErrCanceled:           StatusClientClosedRequest,
-	ErrInvalidArgument:    http.StatusBadRequest,
-	ErrDeadlineExceeded:   http.StatusGatewayTimeout,
-	ErrNotFound:           http.StatusNotFound,
-	ErrAlreadyExists:      http.StatusConflict,
-	ErrPermissionDenied:   http.StatusForbidden,
-	ErrResourceExhausted:  http.StatusTooManyRequests,
-	ErrFailedPrecondition: http.StatusBadRequest,
-	ErrAborted:            http.StatusConflict,
-	ErrOutOfRange:         http.StatusBadRequest,
-	ErrUnimplemented:      http.StatusNotImplemented,
-	ErrInternal:           http.StatusInternalServerError,
-	ErrUnavailable:        http.StatusServiceUnavailable,
-	ErrDataLoss:           http.StatusInternalServerError,
-	ErrUnauthenticated:    http.StatusUnauthorized,
+	CodeUnknown:            http.StatusInternalServerError,
+	CodeCanceled:           StatusClientClosedRequest,
+	CodeInvalidArgument:    http.StatusBadRequest,
+	CodeDeadlineExceeded:   http.StatusGatewayTimeout,
+	CodeNotFound:           http.StatusNotFound,
+	CodeAlreadyExists:      http.StatusConflict,
+	CodePermissionDenied:   http.StatusForbidden,
+	CodeResourceExhausted:  http.StatusTooManyRequests,
+	CodeFailedPrecondition: http.StatusBadRequest,
+	CodeAborted:            http.StatusConflict,
+	CodeOutOfRange:         http.StatusBadRequest,
+	CodeUnimplemented:      http.StatusNotImplemented,
+	CodeInternal:           http.StatusInternalServerError,
+	CodeUnavailable:        http.StatusServiceUnavailable,
+	CodeDataLoss:           http.StatusInternalServerError,
+	CodeUnauthenticated:    http.StatusUnauthorized,
 }
 
 type AppError struct {
@@ -96,7 +96,7 @@ func (e *AppError) Error() string {
 func NewError(code string, message ...string) *AppError {
 	err := &AppError{
 		Code:    code,
-		Message: "somethin went wrong",
+		Message: "something went wrong",
 	}
 	if len(message) > 0 {
 		err.Message = message[0]

@@ -39,14 +39,21 @@ func FromAppError(c *fiber.Ctx, err *apperror.AppError) error {
 
 func NewBadRequestError(c *fiber.Ctx, message string) error {
 	return c.Status(http.StatusBadRequest).JSON(HTTPError{
-		Code:    apperror.ErrInvalidArgument,
+		Code:    apperror.CodeInvalidArgument,
+		Message: message,
+	})
+}
+
+func NewUnauthorizedError(c *fiber.Ctx, message string) error {
+	return c.Status(http.StatusUnauthorized).JSON(HTTPError{
+		Code:    apperror.CodeUnauthenticated,
 		Message: message,
 	})
 }
 
 func NewValidationError(c *fiber.Ctx, details []ValidationError) error {
 	return c.Status(http.StatusBadRequest).JSON(HTTPValidationError{
-		Code:    apperror.ErrInvalidArgument,
+		Code:    apperror.CodeInvalidArgument,
 		Message: "validation error",
 		Details: details,
 	})
