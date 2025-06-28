@@ -29,7 +29,13 @@ func main() {
 	externalAuthRepository := repository.NewExternalAuthRepository(db)
 	sessionRepository := repository.NewSessionRepository(db)
 	authUsecase := usecase.NewAuthUsecase(userClient, sessionRepository, cfg)
-	oauthGoogleUsecase := usecase.NewOAuthGoogleUsecase(userClient, authUsecase, externalAuthRepository, cfg)
+	oauthGoogleUsecase := usecase.NewOAuthGoogleUsecase(
+		userClient,
+		authUsecase,
+		externalAuthRepository,
+		sessionRepository,
+		cfg,
+	)
 
 	app.AddHTTPServer(httpAddr, func(router fiber.Router) {
 		v1 := router.Group("/api/v1")

@@ -75,39 +75,47 @@ func (u *authUsecase) SignIn(
 	user := domain.NewUserFromProto(res.User)
 
 	if ok, err := hashutil.Verify(req.Password, user.Password); err != nil || !ok {
-		return nil, apperror.NewError(apperror.ErrUnauthenticated, "invalid password")
-	}
-
-	token, err := generateTokens(user.ID, &u.config.JWT)
-	if err != nil {
-		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
-	}
-
-	hashedRefreshToken, err := hashutil.Hash(token.RefreshToken)
-	if err != nil {
-		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
+		return nil, apperror.NewError(apperror.CodeUnauthenticated, "invalid password")
 	}
 
 	session := &domain.Session{
 		UserID:    user.ID,
-		Token:     hashedRefreshToken,
 		UserAgent: userAgent,
 		IPAddress: ipAddress,
 		ExpiresAt: time.Now().Add(u.config.JWT.RefreshTokenExpiresIn),
 	}
-	_, err = u.sessionRepo.CreateSession(ctx, session)
+	createdSession, err := u.sessionRepo.CreateSession(ctx, session)
 	if err != nil {
-		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to create session")
+	}
+
+	token, err := generateTokens(user.ID, createdSession.ID, &u.config.JWT)
+	if err != nil {
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to generate tokens")
+	}
+
+	hashedRefreshToken, err := hashutil.Hash(token.RefreshToken)
+	if err != nil {
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to hash refresh token")
+	}
+
+	_, err = u.sessionRepo.UpdateSession(ctx, &domain.Session{
+		ID:    session.ID,
+		Token: hashedRefreshToken,
+	})
+	if err != nil {
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to update session")
 	}
 
 	return token, nil
 }
 
-func generateTokens(userID uint64, jwtConfig *config.JWTConfig) (*auth.TokenResponse, error) {
+func generateTokens(userID, sessionID uint64, jwtConfig *config.JWTConfig) (*auth.TokenResponse, error) {
 	accessToken, err := tokenutil.GenerateToken(
 		jwtConfig.AccessTokenExpiresIn,
 		jwtConfig.AccessTokenSecretKey,
 		userID,
+		sessionID,
 	)
 	if err != nil {
 		return nil, err
@@ -117,6 +125,7 @@ func generateTokens(userID uint64, jwtConfig *config.JWTConfig) (*auth.TokenResp
 		jwtConfig.RefreshTokenExpiresIn,
 		jwtConfig.RefreshTokenSecretKey,
 		userID,
+		sessionID,
 	)
 	if err != nil {
 		return nil, err

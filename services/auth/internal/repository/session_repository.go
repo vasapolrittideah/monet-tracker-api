@@ -16,6 +16,15 @@ func NewSessionRepository(db *gorm.DB) auth.SessionRepository {
 	return &sessionRepository{db: db}
 }
 
+func (r *sessionRepository) GetSessionByID(ctx context.Context, sessionID uint64) (*domain.Session, error) {
+	var session domain.Session
+	if err := r.db.WithContext(ctx).First(&session, "id = ?", sessionID).Error; err != nil {
+		return nil, err
+	}
+
+	return &session, nil
+}
+
 func (r *sessionRepository) GetSessionByToken(ctx context.Context, token string) (*domain.Session, error) {
 	var session domain.Session
 	if err := r.db.WithContext(ctx).First(&session, "token = ? AND revoked = false", token).Error; err != nil {
@@ -31,6 +40,21 @@ func (r *sessionRepository) CreateSession(ctx context.Context, session *domain.S
 	}
 
 	return session, nil
+}
+
+func (r *sessionRepository) UpdateSession(ctx context.Context, updated *domain.Session) (*domain.Session, error) {
+	var session domain.Session
+	if err := r.db.WithContext(ctx).First(&session, "id = ?", updated.ID).Error; err != nil {
+		return nil, err
+	}
+	if err := r.db.WithContext(ctx).Model(&session).Where("id = ?", updated.ID).Save(updated).Error; err != nil {
+		return nil, err
+	}
+	if err := r.db.WithContext(ctx).First(&session, "id = ?", updated.ID).Error; err != nil {
+		return nil, err
+	}
+
+	return &session, nil
 }
 
 func (r *sessionRepository) DeleteSessionByID(ctx context.Context, sessionID uint64) (*domain.Session, error) {

@@ -42,7 +42,10 @@ func (h *oauthGoogleHTTPHandler) SignInWithGoogle(c *fiber.Ctx) error {
 
 func (h *oauthGoogleHTTPHandler) HandleGoogleCallback(c *fiber.Ctx) error {
 	code := c.Query("code")
-	token, err := h.usecase.HandleGoogleCallback(c.Context(), code)
+	userAgent := c.Get("User-Agent")
+	ipAddress := c.IP()
+
+	token, err := h.usecase.HandleGoogleCallback(c.Context(), code, userAgent, ipAddress)
 	if err != nil {
 		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}

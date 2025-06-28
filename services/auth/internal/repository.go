@@ -13,8 +13,10 @@ type ExternalAuthRepository interface {
 }
 
 type SessionRepository interface {
+	GetSessionByID(ctx context.Context, sessionID uint64) (*domain.Session, error)
 	GetSessionByToken(ctx context.Context, token string) (*domain.Session, error)
 	CreateSession(ctx context.Context, session *domain.Session) (*domain.Session, error)
+	UpdateSession(ctx context.Context, session *domain.Session) (*domain.Session, error)
 	DeleteSessionByID(ctx context.Context, sessionID uint64) (*domain.Session, error)
 	DeleteSessionByUserID(ctx context.Context, userID uint64) (*domain.Session, error)
 	RevokeSession(ctx context.Context, sessionID uint64) (*domain.Session, error)

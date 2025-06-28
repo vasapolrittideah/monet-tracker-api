@@ -13,5 +13,5 @@ type AuthUsecase interface {
 
 type OAuthGoogleUsecase interface {
 	GetSignInWithGoogleURL(state string) string
-	HandleGoogleCallback(ctx context.Context, code string) (*TokenResponse, error)
+	HandleGoogleCallback(ctx context.Context, code, userAgent, ipAddress string) (*TokenResponse, error)
 }

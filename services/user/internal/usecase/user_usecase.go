@@ -25,10 +25,10 @@ func NewUserUsecase(repository user.UserRepository, config *config.Config) user.
 func (u *userUsecase) GetAllUsers(ctx context.Context) ([]*domain.User, error) {
 	users, err := u.repository.GetAllUsers(ctx)
 	if err != nil {
-		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to get users")
 	}
 	if len(users) == 0 {
-		return nil, apperror.NewError(apperror.ErrNotFound, "no users found")
+		return nil, apperror.NewError(apperror.CodeNotFound, "no users found")
 	}
 
 	return users, nil
@@ -38,10 +38,10 @@ func (u *userUsecase) GetUserByID(ctx context.Context, id uint64) (*domain.User,
 	user, err := u.repository.GetUserByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperror.NewError(apperror.ErrNotFound, "user not found")
+			return nil, apperror.NewError(apperror.CodeNotFound, "user not found")
 		}
 
-		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to get user")
 	}
 
 	return user, nil
@@ -51,10 +51,10 @@ func (u *userUsecase) GetUserByEmail(ctx context.Context, email string) (*domain
 	user, err := u.repository.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperror.NewError(apperror.ErrNotFound, "user not found")
+			return nil, apperror.NewError(apperror.CodeNotFound, "user not found")
 		}
 
-		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to get user")
 	}
 
 	return user, nil
@@ -63,7 +63,7 @@ func (u *userUsecase) GetUserByEmail(ctx context.Context, email string) (*domain
 func (u *userUsecase) CreateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
 	hashedPassword, err := hashutil.Hash(user.Password)
 	if err != nil {
-		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to hash password")
 	}
 
 	user.Password = hashedPassword
@@ -71,10 +71,10 @@ func (u *userUsecase) CreateUser(ctx context.Context, user *domain.User) (*domai
 	created, err := u.repository.CreateUser(ctx, user)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key") {
-			return nil, apperror.NewError(apperror.ErrAlreadyExists, "user already exists")
+			return nil, apperror.NewError(apperror.CodeAlreadyExists, "user already exists")
 		}
 
-		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to create user")
 	}
 
 	return created, nil
@@ -83,7 +83,7 @@ func (u *userUsecase) CreateUser(ctx context.Context, user *domain.User) (*domai
 func (u *userUsecase) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
 	existing, err := u.GetUserByID(ctx, user.ID)
 	if err != nil {
-		return nil, err
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to get user")
 	}
 
 	if existing.FullName == user.FullName &&
@@ -91,12 +91,12 @@ func (u *userUsecase) UpdateUser(ctx context.Context, user *domain.User) (*domai
 		existing.Password == user.Password &&
 		existing.Verified == user.Verified &&
 		existing.Registered == user.Registered {
-		return nil, apperror.NewError(apperror.ErrInvalidArgument, "no changes detected")
+		return nil, apperror.NewError(apperror.CodeInvalidArgument, "no changes detected")
 	}
 
 	updated, err := u.repository.UpdateUser(ctx, user)
 	if err != nil {
-		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to update user")
 	}
 
 	return updated, nil
@@ -106,10 +106,10 @@ func (u *userUsecase) DeleteUser(ctx context.Context, id uint64) (*domain.User, 
 	deleted, err := u.repository.DeleteUser(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperror.NewError(apperror.ErrNotFound, "user not found")
+			return nil, apperror.NewError(apperror.CodeNotFound, "user not found")
 		}
 
-		return nil, apperror.NewError(apperror.ErrInternal, err.Error())
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to delete user")
 	}
 
 	return deleted, nil
