@@ -28,6 +28,7 @@ func (s *HTTPServer) Start() error {
 			fiber.MethodGet,
 			fiber.MethodPost,
 			fiber.MethodPut,
+			fiber.MethodPatch,
 			fiber.MethodDelete,
 		}, ","),
 	}

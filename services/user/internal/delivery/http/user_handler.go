@@ -146,28 +146,7 @@ func (h *userHTTPHandler) UpdateUser(c *fiber.Ctx) error {
 		return httperror.NewValidationError(c, err)
 	}
 
-	user, err := h.usecase.GetUserByID(c.Context(), id)
-	if err != nil {
-		return httperror.FromAppError(c, err.(*apperror.AppError))
-	}
-
-	if req.FullName != nil {
-		user.FullName = *req.FullName
-	}
-	if req.Email != nil {
-		user.Email = *req.Email
-	}
-	if req.Password != nil {
-		user.Password = *req.Password
-	}
-	if req.Verified != nil {
-		user.Verified = *req.Verified
-	}
-	if req.Registered != nil {
-		user.Registered = *req.Registered
-	}
-
-	updated, err := h.usecase.UpdateUser(c.Context(), user)
+	updated, err := h.usecase.UpdateUser(c.Context(), id, &req)
 	if err != nil {
 		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}

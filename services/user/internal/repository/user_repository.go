@@ -51,15 +51,9 @@ func (r *userRepository) CreateUser(ctx context.Context, user *domain.User) (*do
 	return user, nil
 }
 
-func (r *userRepository) UpdateUser(ctx context.Context, updated *domain.User) (*domain.User, error) {
+func (r *userRepository) UpdateUser(ctx context.Context, id uint64, updates map[string]any) (*domain.User, error) {
 	var user domain.User
-	if err := r.db.WithContext(ctx).First(&user, "id = ?", updated.ID).Error; err != nil {
-		return nil, err
-	}
-	if err := r.db.WithContext(ctx).Model(&user).Where("id = ?", updated.ID).Save(updated).Error; err != nil {
-		return nil, err
-	}
-	if err := r.db.WithContext(ctx).First(&user, "id = ?", updated.ID).Error; err != nil {
+	if err := r.db.WithContext(ctx).Model(&user).Where("id = ?", id).Updates(updates).Error; err != nil {
 		return nil, err
 	}
 
@@ -68,10 +62,7 @@ func (r *userRepository) UpdateUser(ctx context.Context, updated *domain.User) (
 
 func (r *userRepository) DeleteUser(ctx context.Context, id uint64) (*domain.User, error) {
 	var user domain.User
-	if err := r.db.WithContext(ctx).First(&user, "id = ?", id).Error; err != nil {
-		return nil, err
-	}
-	if err := r.db.WithContext(ctx).Delete(&user).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&user).Error; err != nil {
 		return nil, err
 	}
 

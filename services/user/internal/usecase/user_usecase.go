@@ -80,21 +80,40 @@ func (u *userUsecase) CreateUser(ctx context.Context, user *domain.User) (*domai
 	return created, nil
 }
 
-func (u *userUsecase) UpdateUser(ctx context.Context, user *domain.User) (*domain.User, error) {
-	existing, err := u.GetUserByID(ctx, user.ID)
+func (u *userUsecase) UpdateUser(ctx context.Context, id uint64, req *user.UpdateUserRequest) (*domain.User, error) {
+	existing, err := u.GetUserByID(ctx, id)
 	if err != nil {
-		return nil, apperror.NewError(apperror.CodeInternal, "failed to get user")
+		return nil, err
 	}
 
-	if existing.FullName == user.FullName &&
-		existing.Email == user.Email &&
-		existing.Password == user.Password &&
-		existing.Verified == user.Verified &&
-		existing.Registered == user.Registered {
-		return nil, apperror.NewError(apperror.CodeInvalidArgument, "no changes detected")
+	updates := map[string]any{}
+
+	if req.FullName != nil && *req.FullName != existing.FullName {
+		updates["full_name"] = *req.FullName
+	}
+	if req.Email != nil && *req.Email != existing.Email {
+		updates["email"] = *req.Email
+	}
+	if req.Verified != nil && *req.Verified != existing.Verified {
+		updates["verified"] = *req.Verified
+	}
+	if req.Registered != nil && *req.Registered != existing.Registered {
+		updates["registered"] = *req.Registered
+	}
+	if req.Password != nil && *req.Password != existing.Password {
+		hashedPassword, err := hashutil.Hash(*req.Password)
+		if err != nil {
+			return nil, apperror.NewError(apperror.CodeInternal, "failed to hash password")
+		}
+
+		updates["password"] = hashedPassword
 	}
 
-	updated, err := u.repository.UpdateUser(ctx, user)
+	if len(updates) == 0 {
+		return nil, apperror.NewError(apperror.CodeInvalidArgument, "no updates provided")
+	}
+
+	updated, err := u.repository.UpdateUser(ctx, id, updates)
 	if err != nil {
 		return nil, apperror.NewError(apperror.CodeInternal, "failed to update user")
 	}
@@ -103,12 +122,13 @@ func (u *userUsecase) UpdateUser(ctx context.Context, user *domain.User) (*domai
 }
 
 func (u *userUsecase) DeleteUser(ctx context.Context, id uint64) (*domain.User, error) {
-	deleted, err := u.repository.DeleteUser(ctx, id)
+	existing, err := u.GetUserByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperror.NewError(apperror.CodeNotFound, "user not found")
-		}
+		return nil, err
+	}
 
+	deleted, err := u.repository.DeleteUser(ctx, existing.ID)
+	if err != nil {
 		return nil, apperror.NewError(apperror.CodeInternal, "failed to delete user")
 	}
 

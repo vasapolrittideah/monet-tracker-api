@@ -3,11 +3,11 @@ package grpchandler
 import (
 	"context"
 
-	"github.com/charmbracelet/log"
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	user "github.com/vasapolrittideah/money-tracker-api/services/user/internal"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
+	"github.com/vasapolrittideah/money-tracker-api/shared/utils/protoutil"
 )
 
 type userGRPCHandler struct {
@@ -86,30 +86,14 @@ func (c *userGRPCHandler) UpdateUser(
 	ctx context.Context,
 	req *userpbv1.UpdateUserRequest,
 ) (*userpbv1.UpdateUserResponse, error) {
-	user, err := c.usecase.GetUserByID(ctx, req.Id)
+	updated, err := c.usecase.UpdateUser(ctx, req.Id, &user.UpdateUserRequest{
+		FullName:   protoutil.UnwrapString(req.FullName),
+		Email:      protoutil.UnwrapString(req.Email),
+		Verified:   protoutil.UnwrapBool(req.Verified),
+		Registered: protoutil.UnwrapBool(req.Registered),
+		Password:   protoutil.UnwrapString(req.Password),
+	})
 	if err != nil {
-		return nil, err
-	}
-
-	if req.FullName != nil {
-		user.FullName = req.FullName.GetValue()
-	}
-	if req.Email != nil {
-		user.Email = req.Email.GetValue()
-	}
-	if req.Password != nil {
-		user.Password = req.Password.GetValue()
-	}
-	if req.Verified != nil {
-		user.Verified = req.Verified.GetValue()
-	}
-	if req.Registered != nil {
-		user.Registered = req.Registered.GetValue()
-	}
-
-	updated, err := c.usecase.UpdateUser(ctx, user)
-	if err != nil {
-		log.Error(err)
 		return nil, err
 	}
 
