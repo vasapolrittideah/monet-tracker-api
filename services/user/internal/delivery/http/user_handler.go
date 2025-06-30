@@ -37,7 +37,7 @@ func (h *userHTTPHandler) RegisterRoutes() {
 	router.Get("/", h.GetAllUsers)
 	router.Get("/:id", h.GetUserByID)
 	router.Get("/email/:email", h.GetUserByEmail)
-	router.Put("/:id", h.UpdateUser)
+	router.Patch("/:id", h.UpdateUser)
 	router.Delete("/:id", h.DeleteUser)
 }
 

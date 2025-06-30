@@ -7,7 +7,6 @@ import (
 	user "github.com/vasapolrittideah/money-tracker-api/services/user/internal"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
 	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
-	"github.com/vasapolrittideah/money-tracker-api/shared/utils/protoutil"
 )
 
 type userGRPCHandler struct {
@@ -86,13 +85,7 @@ func (c *userGRPCHandler) UpdateUser(
 	ctx context.Context,
 	req *userpbv1.UpdateUserRequest,
 ) (*userpbv1.UpdateUserResponse, error) {
-	updated, err := c.usecase.UpdateUser(ctx, req.Id, &user.UpdateUserRequest{
-		FullName:   protoutil.UnwrapString(req.FullName),
-		Email:      protoutil.UnwrapString(req.Email),
-		Verified:   protoutil.UnwrapBool(req.Verified),
-		Registered: protoutil.UnwrapBool(req.Registered),
-		Password:   protoutil.UnwrapString(req.Password),
-	})
+	updated, err := c.usecase.UpdateUser(ctx, req.Id, user.NewUpdateUserRequestFromProto(req))
 	if err != nil {
 		return nil, err
 	}
