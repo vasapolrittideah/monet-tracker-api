@@ -52,8 +52,12 @@ func (r *userRepository) CreateUser(ctx context.Context, user *domain.User) (*do
 }
 
 func (r *userRepository) UpdateUser(ctx context.Context, id uint64, updates map[string]any) (*domain.User, error) {
+	if err := r.db.WithContext(ctx).Model(&domain.User{}).Where("id = ?", id).Updates(updates).Error; err != nil {
+		return nil, err
+	}
+
 	var user domain.User
-	if err := r.db.WithContext(ctx).Model(&user).Where("id = ?", id).Updates(updates).Error; err != nil {
+	if err := r.db.WithContext(ctx).First(&user, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
 
