@@ -5,23 +5,32 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	auth "github.com/vasapolrittideah/money-tracker-api/services/auth/internal"
+	"github.com/vasapolrittideah/money-tracker-api/services/auth/internal/delivery/http/middleware"
 	"github.com/vasapolrittideah/money-tracker-api/shared/config"
+	"github.com/vasapolrittideah/money-tracker-api/shared/domain"
 	"github.com/vasapolrittideah/money-tracker-api/shared/errors/apperror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/errors/httperror"
 	"github.com/vasapolrittideah/money-tracker-api/shared/validator"
 )
 
 type authHTTPHandler struct {
-	usecase auth.AuthUsecase
-	router  fiber.Router
-	config  *config.Config
+	usecase    auth.AuthUsecase
+	middleware *middleware.AuthMiddleware
+	router     fiber.Router
+	config     *config.Config
 }
 
-func NewAuthHTTPHandler(usecase auth.AuthUsecase, router fiber.Router, config *config.Config) *authHTTPHandler {
+func NewAuthHTTPHandler(
+	usecase auth.AuthUsecase,
+	middleware *middleware.AuthMiddleware,
+	router fiber.Router,
+	config *config.Config,
+) *authHTTPHandler {
 	return &authHTTPHandler{
-		usecase: usecase,
-		router:  router,
-		config:  config,
+		usecase:    usecase,
+		middleware: middleware,
+		router:     router,
+		config:     config,
 	}
 }
 
@@ -30,6 +39,7 @@ func (c *authHTTPHandler) RegisterRoutes() {
 
 	router.Post("/sign-up", c.SignUp)
 	router.Post("/sign-in", c.SignIn)
+	router.Post("/refresh", c.middleware.ValidateRefreshToken(), c.Refresh)
 }
 
 // SignUp godoc
@@ -90,6 +100,20 @@ func (h *authHTTPHandler) SignIn(c *fiber.Ctx) error {
 	ipAddress := c.IP()
 
 	token, err := h.usecase.SignIn(c.Context(), req, userAgent, ipAddress)
+	if err != nil {
+		return httperror.FromAppError(c, err.(*apperror.AppError))
+	}
+
+	return c.Status(http.StatusOK).JSON(token)
+}
+
+func (h *authHTTPHandler) Refresh(c *fiber.Ctx) error {
+	session, ok := c.Locals("session").(*domain.Session)
+	if !ok {
+		return httperror.NewUnauthorizedError(c, "session not found")
+	}
+
+	token, err := h.usecase.Refresh(c.Context(), session.UserID, session.ID)
 	if err != nil {
 		return httperror.FromAppError(c, err.(*apperror.AppError))
 	}

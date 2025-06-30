@@ -99,9 +99,31 @@ func (u *authUsecase) SignIn(
 		return nil, apperror.NewError(apperror.CodeInternal, "failed to hash refresh token")
 	}
 
-	_, err = u.sessionRepo.UpdateSession(ctx, &domain.Session{
-		ID:    session.ID,
-		Token: hashedRefreshToken,
+	_, err = u.sessionRepo.UpdateSession(ctx, session.ID, map[string]any{
+		"user_id": user.ID,
+		"token":   hashedRefreshToken,
+	})
+	if err != nil {
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to update session")
+	}
+
+	return token, nil
+}
+
+func (u *authUsecase) Refresh(ctx context.Context, userID, sessionID uint64) (*auth.TokenResponse, error) {
+	token, err := generateTokens(userID, sessionID, &u.config.JWT)
+	if err != nil {
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to generate tokens")
+	}
+
+	hashedRefreshToken, err := hashutil.Hash(token.RefreshToken)
+	if err != nil {
+		return nil, apperror.NewError(apperror.CodeInternal, "failed to hash refresh token")
+	}
+
+	_, err = u.sessionRepo.UpdateSession(ctx, sessionID, map[string]any{
+		"user_id": userID,
+		"token":   hashedRefreshToken,
 	})
 	if err != nil {
 		return nil, apperror.NewError(apperror.CodeInternal, "failed to update session")

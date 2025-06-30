@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	userpbv1 "github.com/vasapolrittideah/money-tracker-api/protogen/user/v1"
 	httphandler "github.com/vasapolrittideah/money-tracker-api/services/auth/internal/delivery/http"
+	"github.com/vasapolrittideah/money-tracker-api/services/auth/internal/delivery/http/middleware"
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/internal/repository"
 	"github.com/vasapolrittideah/money-tracker-api/services/auth/internal/usecase"
 	"github.com/vasapolrittideah/money-tracker-api/shared/bootstrap"
@@ -36,10 +37,11 @@ func main() {
 		sessionRepository,
 		cfg,
 	)
+	authMiddleware := middleware.NewAuthMiddleware(sessionRepository, &cfg.JWT)
 
 	app.AddHTTPServer(httpAddr, func(router fiber.Router) {
 		v1 := router.Group("/api/v1")
-		authHandler := httphandler.NewAuthHTTPHandler(authUsecase, v1, cfg)
+		authHandler := httphandler.NewAuthHTTPHandler(authUsecase, authMiddleware, v1, cfg)
 		authHandler.RegisterRoutes()
 		oauthGoogleHandler := httphandler.NewOAuthGoogleHTTPHandler(oauthGoogleUsecase, v1, cfg)
 		oauthGoogleHandler.RegisterRoutes()

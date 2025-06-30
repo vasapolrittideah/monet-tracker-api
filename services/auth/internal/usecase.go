@@ -9,6 +9,7 @@ import (
 type AuthUsecase interface {
 	SignUp(ctx context.Context, req *SignUpRequest) (*domain.User, error)
 	SignIn(ctx context.Context, req *SignInRequest, userAgent, ipAddress string) (*TokenResponse, error)
+	Refresh(ctx context.Context, userID, sessionID uint64) (*TokenResponse, error)
 }
 
 type OAuthGoogleUsecase interface {
