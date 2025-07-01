@@ -1,0 +1,17 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "middleware",
+    srcs = ["auth_middleware.go"],
+    importpath = "github.com/vasapolrittideah/money-tracker-api/services/auth/internal/delivery/http/middleware",
+    visibility = ["//services/auth:__subpackages__"],
+    deps = [
+        "//services/auth/internal",
+        "//shared/config",
+        "//shared/errors/httperror",
+        "//shared/utils/hashutil",
+        "//shared/utils/tokenutil",
+        "@com_github_gofiber_fiber_v2//:fiber",
+        "@io_gorm_gorm//:gorm",
+    ],
+)

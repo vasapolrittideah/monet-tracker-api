@@ -9,5 +9,9 @@ go_library(
     ],
     importpath = "github.com/vasapolrittideah/money-tracker-api/services/user/internal",
     visibility = ["//services/user:__subpackages__"],
-    deps = ["//shared/domain"],
+    deps = [
+        "//protogen/user/v1:user",
+        "//shared/domain",
+        "//shared/utils/protoutil",
+    ],
 )

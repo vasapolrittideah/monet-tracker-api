@@ -10,7 +10,9 @@ go_library(
     visibility = ["//services/auth:__subpackages__"],
     deps = [
         "//services/auth/internal",
+        "//services/auth/internal/delivery/http/middleware",
         "//shared/config",
+        "//shared/domain",
         "//shared/errors/apperror",
         "//shared/errors/httperror",
         "//shared/validator",

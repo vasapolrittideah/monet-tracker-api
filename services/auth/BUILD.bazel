@@ -8,6 +8,7 @@ go_library(
     deps = [
         "//protogen/user/v1:user",
         "//services/auth/internal/delivery/http",
+        "//services/auth/internal/delivery/http/middleware",
         "//services/auth/internal/repository",
         "//services/auth/internal/usecase",
         "//shared/bootstrap",

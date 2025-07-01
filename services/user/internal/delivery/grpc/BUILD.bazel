@@ -10,6 +10,5 @@ go_library(
         "//services/user/internal",
         "//shared/config",
         "//shared/domain",
-        "@com_github_charmbracelet_log//:log",
     ],
 )
